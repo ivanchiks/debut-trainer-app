@@ -57,31 +57,64 @@ button.icon { padding: 6px 10px; }
 
 /* Раскладка */
 .layout { display: flex; min-height: calc(100vh - 54px); }
-.library { width: 290px; flex: none; background: var(--panel2); border-right: 1px solid var(--border); overflow-y: auto; max-height: calc(100vh - 54px); position: sticky; top: 0; }
-.lib-head { padding: 12px 14px 6px; font-weight: 700; }
-.lib-head small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
-.course { border-bottom: 1px solid var(--border); }
-.course-head { display: flex; align-items: center; gap: 6px; padding: 8px 10px 8px 14px; cursor: pointer; }
-.course-head .cname { flex: 1; font-weight: 600; font-size: 14px; }
-.course-head .cmeta { color: var(--muted); font-size: 12px; }
-.course-head button { padding: 2px 6px; font-size: 12px; background: transparent; border-color: transparent; }
-.course-head button:hover { border-color: var(--border); }
-.chapters { padding: 0 0 6px; }
-.chapter { display: flex; align-items: center; gap: 6px; padding: 5px 10px 5px 14px; cursor: pointer; font-size: 13.5px; }
-.chapter:hover { background: var(--panel); }
-.chapter.active { background: var(--panel); box-shadow: inset 3px 0 0 var(--accent); }
-.chapter .cn { flex: 1; overflow: hidden; text-overflow: ellipsis; }
-.chapter .dot { width: 14px; text-align: center; color: var(--muted); }
-.chapter .dot.l1 { color: var(--warn); }
-.chapter .dot.l2 { color: var(--accent); }
-.chapter .err { font-size: 11px; color: var(--danger); }
-.chapter input { margin: 0; }
+.library { width: 320px; flex: none; background: var(--panel2); border-right: 1px solid var(--border); overflow-y: auto; max-height: calc(100vh - 54px); position: sticky; top: 0; }
+.lib-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 14px 8px; font-weight: 700; font-size: 17px; }
+.lib-close { display: none; border: none; background: transparent; font-size: 18px; }
 .lib-empty { padding: 14px; color: var(--muted); }
+#libList { display: flex; flex-direction: column; gap: 10px; padding: 0 12px 16px; }
+
+/* Вкладки курсов */
+.lib-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 4px; scrollbar-width: none; }
+.lib-tabs::-webkit-scrollbar { display: none; }
+.lib-tab { display: flex; align-items: center; gap: 6px; flex: none; padding: 7px 12px 7px 8px; border-radius: 999px; background: var(--panel); font-size: 13.5px; white-space: nowrap; }
+.lib-tab.on { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
+.tab-ico { width: 22px; height: 22px; flex: none; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; }
+.lib-tab .tab-ico.pc { position: static; width: 22px; height: 22px; }
+
+/* Прогресс курса */
+.lib-progress { display: flex; flex-direction: column; gap: 6px; }
+.lp-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+.lp-row b { color: var(--text); font-weight: 600; }
+.lp-bar { height: 8px; border-radius: 999px; background: var(--border); overflow: hidden; }
+.lp-bar i { display: block; height: 100%; background: var(--accent); border-radius: 999px; min-width: 4px; transition: width .3s; }
+
+/* Кнопка «Продолжить» */
+.lib-continue { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; padding: 12px 44px 12px 14px; border-radius: 12px; background: var(--accent); color: var(--accent-text); border: none; box-shadow: var(--shadow); }
+.lc-kicker { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; opacity: .85; }
+.lc-title { font-size: 16px; font-weight: 700; line-height: 1.25; }
+.lc-sub { font-size: 13px; opacity: .9; }
+.lc-arrow { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 22px; }
+
+/* Фильтр */
+.lib-filter { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.lib-filter button { flex: 1; border: none; border-radius: 0; padding: 7px 6px; font-size: 13px; background: var(--panel); }
+.lib-filter button.on { background: var(--text); color: var(--bg); font-weight: 600; }
+.lib-note { margin: 0; font-size: 13px; color: var(--muted); }
+
+/* Карточки глав */
+.ch-list { display: flex; flex-direction: column; gap: 6px; }
+.ch-card { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 10px 10px 10px 8px; border-radius: 12px; background: var(--panel); border: 1px solid var(--border); }
+.ch-card:hover { border-color: var(--accent); }
+.ch-card.active { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent); }
+.ch-num { flex: none; min-width: 34px; padding: 0 4px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; background: var(--panel2); color: var(--muted); border: 1px solid var(--border); }
+.st-half .ch-num { background: color-mix(in srgb, var(--warn) 18%, var(--panel)); color: var(--warn); border-color: color-mix(in srgb, var(--warn) 40%, transparent); }
+.st-done .ch-num { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-size: 16px; }
+.ch-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.ch-title { font-weight: 600; font-size: 14px; line-height: 1.3; }
+.ch-star { color: var(--warn); }
+.ch-sub { font-size: 12.5px; color: var(--muted); line-height: 1.3; }
+.ch-trap { font-size: 12px; color: var(--danger); line-height: 1.3; margin-top: 2px; }
+.ch-pill { flex: none; font-size: 11.5px; padding: 3px 8px; border-radius: 999px; background: var(--panel2); color: var(--muted); white-space: nowrap; }
+.st-half .ch-pill { color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, var(--panel)); }
+.st-done .ch-pill { color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--panel)); font-weight: 600; }
+.ch-warn { color: var(--danger); }
+.lib-course-actions { display: flex; gap: 8px; justify-content: center; padding-top: 4px; }
+.lib-course-actions button { font-size: 12.5px; padding: 5px 10px; background: transparent; color: var(--muted); }
 
 /* Основная часть */
 .main { flex: 1; display: flex; gap: 20px; padding: 16px; align-items: flex-start; justify-content: center; flex-wrap: wrap; min-width: 0; }
 .board-wrap { --sz: min(calc(100vw - 32px), calc(100vh - 100px), 620px); width: var(--sz); flex: none; }
-@media (min-width: 901px) { .board-wrap { --sz: min(calc(100vw - 290px - 420px), calc(100vh - 100px), 640px); min-width: 320px; } }
+@media (min-width: 901px) { .board-wrap { --sz: min(calc(100vw - 320px - 420px), calc(100vh - 100px), 640px); min-width: 320px; } }
 .board { position: relative; width: var(--sz); height: var(--sz); min-width: 280px; min-height: 280px; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); border-radius: 4px; overflow: hidden; box-shadow: var(--shadow); user-select: none; touch-action: none; }
 .sq { position: relative; display: flex; align-items: center; justify-content: center; }
 .sq.l { background: var(--light); } .sq.d { background: var(--dark); }
@@ -96,9 +129,22 @@ button.icon { padding: 6px 10px; }
 .coord { position: absolute; font-size: calc(var(--sz) / 8 * .17); font-weight: 600; pointer-events: none; z-index: 1; }
 .coord.f { right: 3px; bottom: 1px; } .coord.r { left: 3px; top: 1px; }
 .sq.l .coord { color: var(--dark); } .sq.d .coord { color: var(--light); }
-.pc { position: relative; z-index: 3; font-size: calc(var(--sz) / 8 * .82); line-height: 1; cursor: default; font-family: "Segoe UI Symbol", "Noto Sans Symbols2", "DejaVu Sans", "Arial Unicode MS", serif; }
-.pc.w { color: #fff; text-shadow: 0 0 1px #000, 0 0 1px #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 2px 3px rgba(0,0,0,.35); }
-.pc.b { color: #1d1b19; text-shadow: 0 0 1px #fff8, 0 2px 3px rgba(0,0,0,.35); }
+.pc { position: relative; z-index: 3; display: block; width: 100%; height: 100%; background: center / 100% no-repeat; cursor: default; }
+.sq > .pc { position: absolute; inset: 0; }
+.ghost.pc { width: calc(var(--sz, 480px) / 8); height: calc(var(--sz, 480px) / 8); }
+/* Фигуры: cburnett — Colin M.L. Burnett, GPLv2+ (через lichess-org/lila) */
+.pbB{background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJjb2xvci1zY2hlbWU6bGlnaHQgb25seSIgd2lkdGg9IjQ1IiBoZWlnaHQ9IjQ1IiB2aWV3Qm94PSIwIDAgNDUgNDUiPjxnIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMS41Ij48ZyBmaWxsPSIjMDAwIiBzdHJva2UtbGluZWNhcD0iYnV0dCI+PHBhdGggZD0iTTkgMzZjMy40LTEgMTAuMS40IDEzLjUtMiAzLjQgMi40IDEwLjEgMSAxMy41IDIgMCAwIDEuNi41IDMgMi0uNyAxLTEuNiAxLTMgLjUtMy40LTEtMTAuMS41LTEzLjUtMS0zLjQgMS41LTEwLjEgMC0xMy41IDEtMS40LjUtMi4zLjUtMy0uNSAxLjQtMiAzLTIgMy0yeiIvPjxwYXRoIGQ9Ik0xNSAzMmMyLjUgMi41IDEyLjUgMi41IDE1IDAgLjUtMS41IDAtMiAwLTIgMC0yLjUtMi41LTQtMi41LTQgNS41LTEuNSA2LTExLjUtNS0xNS41LTExIDQtMTAuNSAxNC01IDE1LjUgMCAwLTIuNSAxLjUtMi41IDQgMCAwLS41LjUgMCAyeiIvPjxwYXRoIGQ9Ik0yNSA4YTIuNSAyLjUgMCAxIDEtNSAwIDIuNSAyLjUgMCAxIDEgNSAweiIvPjwvZz48cGF0aCBzdHJva2U9IiNlY2VjZWMiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGQ9Ik0xNy41IDI2aDEwTTE1IDMwaDE1bS03LjUtMTQuNXY1TTIwIDE4aDUiLz48L2c+PC9zdmc+")}
+.pbK{background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJjb2xvci1zY2hlbWU6bGlnaHQgb25seSIgdmlld0JveD0iMCAwIDQ1IDQ1Ij48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjEuNSI+PHBhdGggc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgZD0iTTIyLjUgMTEuNlY2Ii8+PHBhdGggZmlsbD0iIzAwMCIgc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiIGQ9Ik0yMi41IDI1czQuNS03LjUgMy0xMC41YzAgMC0xLTIuNS0zLTIuNXMtMyAyLjUtMyAyLjVjLTEuNSAzIDMgMTAuNSAzIDEwLjUiLz48cGF0aCBmaWxsPSIjMDAwIiBkPSJNMTEuNSAzN2EyMi4zIDIyLjMgMCAwIDAgMjEgMHYtN3M5LTQuNSA2LTEwLjVjLTQtNi41LTEzLjUtMy41LTE2IDRWMjd2LTMuNWMtMy41LTcuNS0xMy0xMC41LTE2LTQtMyA2IDUgMTAgNSAxMHoiLz48cGF0aCBzdHJva2UtbGluZWpvaW49Im1pdGVyIiBkPSJNMjAgOGg1Ii8+PHBhdGggc3Ryb2tlPSIjZWNlY2VjIiBkPSJNMzIgMjkuNXM4LjUtNCA2LTkuN0MzNC4xIDE0IDI1IDE4IDIyLjUgMjQuNnYyLjEtMi4xQzIwIDE4IDkuOSAxNCA3IDE5LjljLTIuNSA1LjYgNC44IDkgNC44IDkiLz48cGF0aCBzdHJva2U9IiNlY2VjZWMiIGQ9Ik0xMS41IDMwYzUuNS0zIDE1LjUtMyAyMSAwbS0yMSAzLjVjNS41LTMgMTUuNS0zIDIxIDBtLTIxIDMuNWM1LjUtMyAxNS41LTMgMjEgMCIvPjwvZz48L3N2Zz4=")}
+.pbN{background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJjb2xvci1zY2hlbWU6bGlnaHQgb25seSIgd2lkdGg9IjQ1IiBoZWlnaHQ9IjQ1IiB2aWV3Qm94PSIwIDAgNDUgNDUiPjxnIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMS41Ij48cGF0aCBmaWxsPSIjMDAwIiBkPSJNMjIgMTBjMTAuNSAxIDE2LjUgOCAxNiAyOUgxNWMwLTkgMTAtNi41IDgtMjEiLz48cGF0aCBmaWxsPSIjMDAwIiBkPSJNMjQgMThjLjM4IDIuOTEtNS41NSA3LjM3LTggOS0zIDItMi44MiA0LjM0LTUgNC0xLjA0LS45NCAxLjQxLTMuMDQgMC0zLTEgMCAuMTkgMS4yMy0xIDItMSAwLTQgMS00LTQgMC0yIDYtMTIgNi0xMnMxLjg5LTEuOSAyLTMuNWMtLjczLTEtLjUtMi0uNS0zIDEtMSAzIDIuNSAzIDIuNWgycy43OC0yIDIuNS0zYzEgMCAxIDMgMSAzIi8+PHBhdGggZmlsbD0iI2VjZWNlYyIgc3Ryb2tlPSIjZWNlY2VjIiBkPSJNOS41IDI1LjVhLjUuNSAwIDEgMS0xIDAgLjUuNSAwIDEgMSAxIDBtNS40My05Ljc1YS41IDEuNSAzMCAxIDEtLjg2LS41LjUgMS41IDMwIDEgMSAuODYuNSIvPjxwYXRoIGZpbGw9IiNlY2VjZWMiIHN0cm9rZT0ibm9uZSIgZD0ibTI0LjU1IDEwLjQtLjQ1IDEuNDUuNS4xNWMzLjE1IDEgNS42NSAyLjQ5IDcuOSA2Ljc1UzM1Ljc1IDI5LjA2IDM1LjI1IDM5bC0uMDUuNWgyLjI1bC4wNS0uNWMuNS0xMC4wNi0uODgtMTYuODUtMy4yNS0yMS4zNHMtNS43OS02LjY0LTkuMTktNy4xNnoiLz48L2c+PC9zdmc+")}
+.pbP{background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJjb2xvci1zY2hlbWU6bGlnaHQgb25seSIgd2lkdGg9IjQ1IiBoZWlnaHQ9IjQ1IiB2aWV3Qm94PSIwIDAgNDUgNDUiPjxwYXRoIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2Utd2lkdGg9IjEuNSIgZD0iTTIyLjUgOWE0IDQgMCAwIDAtMy4yMiA2LjM4IDYuNDggNi40OCAwIDAgMC0uODcgMTAuNjVjLTMgMS4wNi03LjQxIDUuNTUtNy40MSAxMy40N2gyM2MwLTcuOTItNC40MS0xMi40MS03LjQxLTEzLjQ3YTYuNDYgNi40NiAwIDAgMC0uODctMTAuNjVBNC4wMSA0LjAxIDAgMCAwIDIyLjUgOXoiLz48L3N2Zz4=")}
+.pbQ{background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJjb2xvci1zY2hlbWU6bGlnaHQgb25seSIgd2lkdGg9IjQ1IiBoZWlnaHQ9IjQ1IiB2aWV3Qm94PSIwIDAgNDUgNDUiPjxnIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMS41Ij48ZyBzdHJva2U9Im5vbmUiPjxjaXJjbGUgY3g9IjYiIGN5PSIxMiIgcj0iMi43NSIvPjxjaXJjbGUgY3g9IjE0IiBjeT0iOSIgcj0iMi43NSIvPjxjaXJjbGUgY3g9IjIyLjUiIGN5PSI4IiByPSIyLjc1Ii8+PGNpcmNsZSBjeD0iMzEiIGN5PSI5IiByPSIyLjc1Ii8+PGNpcmNsZSBjeD0iMzkiIGN5PSIxMiIgcj0iMi43NSIvPjwvZz48cGF0aCBzdHJva2UtbGluZWNhcD0iYnV0dCIgZD0iTTkgMjZjOC41LTEuNSAyMS0xLjUgMjcgMGwyLjUtMTIuNUwzMSAyNWwtLjMtMTQuMS01LjIgMTMuNi0zLTE0LjUtMyAxNC41LTUuMi0xMy42TDE0IDI1IDYuNSAxMy41eiIvPjxwYXRoIHN0cm9rZS1saW5lY2FwPSJidXR0IiBkPSJNOSAyNmMwIDIgMS41IDIgMi41IDQgMSAxLjUgMSAxIC41IDMuNS0xLjUgMS0xLjUgMi41LTEuNSAyLjUtMS41IDEuNS41IDIuNS41IDIuNSA2LjUgMSAxNi41IDEgMjMgMCAwIDAgMS41LTEgMC0yLjUgMCAwIC41LTEuNS0xLTIuNS0uNS0yLjUtLjUtMiAuNS0zLjUgMS0yIDIuNS0yIDIuNS00LTguNS0xLjUtMTguNS0xLjUtMjcgMHoiLz48cGF0aCBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0iYnV0dCIgZD0iTTExIDM4LjVhMzUgMzUgMSAwIDAgMjMgMCIvPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2VjZWNlYyIgZD0iTTExIDI5YTM1IDM1IDEgMCAxIDIzIDBtLTIxLjUgMi41aDIwbS0yMSAzYTM1IDM1IDEgMCAwIDIyIDBtLTIzIDNhMzUgMzUgMSAwIDAgMjQgMCIvPjwvZz48L3N2Zz4=")}
+.pbR{background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJjb2xvci1zY2hlbWU6bGlnaHQgb25seSIgd2lkdGg9IjQ1IiBoZWlnaHQ9IjQ1IiB2aWV3Qm94PSIwIDAgNDUgNDUiPjxnIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMS41Ij48cGF0aCBzdHJva2UtbGluZWNhcD0iYnV0dCIgZD0iTTkgMzloMjd2LTNIOXptMy41LTcgMS41LTIuNWgxN2wxLjUgMi41em0tLjUgNHYtNGgyMXY0eiIvPjxwYXRoIHN0cm9rZS1saW5lY2FwPSJidXR0IiBzdHJva2UtbGluZWpvaW49Im1pdGVyIiBkPSJNMTQgMjkuNXYtMTNoMTd2MTN6Ii8+PHBhdGggc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiIGQ9Ik0xNCAxNi41IDExIDE0aDIzbC0zIDIuNXpNMTEgMTRWOWg0djJoNVY5aDV2Mmg1VjloNHY1eiIvPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2VjZWNlYyIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgc3Ryb2tlLXdpZHRoPSIxIiBkPSJNMTIgMzUuNWgyMW0tMjAtNGgxOW0tMTgtMmgxN20tMTctMTNoMTdNMTEgMTRoMjMiLz48L2c+PC9zdmc+")}
+.pwB{background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJjb2xvci1zY2hlbWU6bGlnaHQgb25seSIgd2lkdGg9IjQ1IiBoZWlnaHQ9IjQ1IiB2aWV3Qm94PSIwIDAgNDUgNDUiPjxnIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMS41Ij48ZyBmaWxsPSIjZmZmIiBzdHJva2UtbGluZWNhcD0iYnV0dCI+PHBhdGggZD0iTTkgMzZjMy4zOS0uOTcgMTAuMTEuNDMgMTMuNS0yIDMuMzkgMi40MyAxMC4xMSAxLjAzIDEzLjUgMiAwIDAgMS42NS41NCAzIDItLjY4Ljk3LTEuNjUuOTktMyAuNS0zLjM5LS45Ny0xMC4xMS40Ni0xMy41LTEtMy4zOSAxLjQ2LTEwLjExLjAzLTEzLjUgMS0xLjM1LjQ5LTIuMzIuNDctMy0uNSAxLjM1LTEuOTQgMy0yIDMtMnoiLz48cGF0aCBkPSJNMTUgMzJjMi41IDIuNSAxMi41IDIuNSAxNSAwIC41LTEuNSAwLTIgMC0yIDAtMi41LTIuNS00LTIuNS00IDUuNS0xLjUgNi0xMS41LTUtMTUuNS0xMSA0LTEwLjUgMTQtNSAxNS41IDAgMC0yLjUgMS41LTIuNSA0IDAgMC0uNS41IDAgMnoiLz48cGF0aCBkPSJNMjUgOGEyLjUgMi41IDAgMSAxLTUgMCAyLjUgMi41IDAgMSAxIDUgMHoiLz48L2c+PHBhdGggc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgZD0iTTE3LjUgMjZoMTBNMTUgMzBoMTVtLTcuNS0xNC41djVNMjAgMThoNSIvPjwvZz48L3N2Zz4=")}
+.pwK{background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJjb2xvci1zY2hlbWU6bGlnaHQgb25seSIgdmlld0JveD0iMCAwIDQ1IDQ1Ij48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjEuNSI+PHBhdGggc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgZD0iTTIyLjUgMTEuNjNWNk0yMCA4aDUiLz48cGF0aCBmaWxsPSIjZmZmIiBzdHJva2UtbGluZWNhcD0iYnV0dCIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgZD0iTTIyLjUgMjVzNC41LTcuNSAzLTEwLjVjMCAwLTEtMi41LTMtMi41cy0zIDIuNS0zIDIuNWMtMS41IDMgMyAxMC41IDMgMTAuNSIvPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMS41IDM3YzUuNSAzLjUgMTUuNSAzLjUgMjEgMHYtN3M5LTQuNSA2LTEwLjVjLTQtNi41LTEzLjUtMy41LTE2IDRWMjd2LTMuNWMtMy41LTcuNS0xMy0xMC41LTE2LTQtMyA2IDUgMTAgNSAxMHoiLz48cGF0aCBkPSJNMTEuNSAzMGM1LjUtMyAxNS41LTMgMjEgMG0tMjEgMy41YzUuNS0zIDE1LjUtMyAyMSAwbS0yMSAzLjVjNS41LTMgMTUuNS0zIDIxIDAiLz48L2c+PC9zdmc+")}
+.pwN{background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJjb2xvci1zY2hlbWU6bGlnaHQgb25seSIgd2lkdGg9IjQ1IiBoZWlnaHQ9IjQ1IiB2aWV3Qm94PSIwIDAgNDUgNDUiPjxnIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMS41Ij48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMjIgMTBjMTAuNSAxIDE2LjUgOCAxNiAyOUgxNWMwLTkgMTAtNi41IDgtMjEiLz48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMjQgMThjLjM4IDIuOTEtNS41NSA3LjM3LTggOS0zIDItMi44MiA0LjM0LTUgNC0xLjA0Mi0uOTQgMS40MS0zLjA0IDAtMy0xIDAgLjE5IDEuMjMtMSAyLTEgMC00LjAwMyAxLTQtNCAwLTIgNi0xMiA2LTEyczEuODktMS45IDItMy41Yy0uNzMtLjk5NC0uNS0yLS41LTMgMS0xIDMgMi41IDMgMi41aDJzLjc4LTEuOTkyIDIuNS0zYzEgMCAxIDMgMSAzIi8+PHBhdGggZmlsbD0iIzAwMCIgZD0iTTkuNSAyNS41YS41LjUgMCAxIDEtMSAwIC41LjUgMCAxIDEgMSAwbTUuNDMzLTkuNzVhLjUgMS41IDMwIDEgMS0uODY2LS41LjUgMS41IDMwIDEgMSAuODY2LjUiLz48L2c+PC9zdmc+")}
+.pwP{background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJjb2xvci1zY2hlbWU6bGlnaHQgb25seSIgd2lkdGg9IjQ1IiBoZWlnaHQ9IjQ1IiB2aWV3Qm94PSIwIDAgNDUgNDUiPjxwYXRoIGZpbGw9IiNmZmYiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2Utd2lkdGg9IjEuNSIgZD0iTTIyLjUgOWMtMi4yMSAwLTQgMS43OS00IDQgMCAuODkuMjkgMS43MS43OCAyLjM4QzE3LjMzIDE2LjUgMTYgMTguNTkgMTYgMjFjMCAyLjAzLjk0IDMuODQgMi40MSA1LjAzLTMgMS4wNi03LjQxIDUuNTUtNy40MSAxMy40N2gyM2MwLTcuOTItNC40MS0xMi40MS03LjQxLTEzLjQ3IDEuNDctMS4xOSAyLjQxLTMgMi40MS01LjAzIDAtMi40MS0xLjMzLTQuNS0zLjI4LTUuNjIuNDktLjY3Ljc4LTEuNDkuNzgtMi4zOCAwLTIuMjEtMS43OS00LTQtNHoiLz48L3N2Zz4=")}
+.pwQ{background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJjb2xvci1zY2hlbWU6bGlnaHQgb25seSIgd2lkdGg9IjQ1IiBoZWlnaHQ9IjQ1IiB2aWV3Qm94PSIwIDAgNDUgNDUiPjxnIGZpbGw9IiNmZmYiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMS41Ij48cGF0aCBkPSJNOCAxMmEyIDIgMCAxIDEtNCAwIDIgMiAwIDEgMSA0IDBtMTYuNS00LjVhMiAyIDAgMSAxLTQgMCAyIDIgMCAxIDEgNCAwTTQxIDEyYTIgMiAwIDEgMS00IDAgMiAyIDAgMSAxIDQgME0xNiA4LjVhMiAyIDAgMSAxLTQgMCAyIDIgMCAxIDEgNCAwTTMzIDlhMiAyIDAgMSAxLTQgMCAyIDIgMCAxIDEgNCAwIi8+PHBhdGggc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiIGQ9Ik05IDI2YzguNS0xLjUgMjEtMS41IDI3IDBsMi0xMi03IDExVjExbC01LjUgMTMuNS0zLTE1LTMgMTUtNS41LTE0VjI1TDcgMTR6Ii8+PHBhdGggc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiIGQ9Ik05IDI2YzAgMiAxLjUgMiAyLjUgNCAxIDEuNSAxIDEgLjUgMy41LTEuNSAxLTEuNSAyLjUtMS41IDIuNS0xLjUgMS41LjUgMi41LjUgMi41IDYuNSAxIDE2LjUgMSAyMyAwIDAgMCAxLjUtMSAwLTIuNSAwIDAgLjUtMS41LTEtMi41LS41LTIuNS0uNS0yIC41LTMuNSAxLTIgMi41LTIgMi41LTQtOC41LTEuNS0xOC41LTEuNS0yNyAweiIvPjxwYXRoIGZpbGw9Im5vbmUiIGQ9Ik0xMS41IDMwYzMuNS0xIDE4LjUtMSAyMiAwTTEyIDMzLjVjNi0xIDE1LTEgMjEgMCIvPjwvZz48L3N2Zz4=")}
+.pwR{background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0eWxlPSJjb2xvci1zY2hlbWU6bGlnaHQgb25seSIgd2lkdGg9IjQ1IiBoZWlnaHQ9IjQ1IiB2aWV3Qm94PSIwIDAgNDUgNDUiPjxnIGZpbGw9IiNmZmYiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMS41Ij48cGF0aCBzdHJva2UtbGluZWNhcD0iYnV0dCIgZD0iTTkgMzloMjd2LTNIOXptMy0zdi00aDIxdjR6bS0xLTIyVjloNHYyaDVWOWg1djJoNVY5aDR2NSIvPjxwYXRoIGQ9Im0zNCAxNC0zIDNIMTRsLTMtMyIvPjxwYXRoIHN0cm9rZS1saW5lY2FwPSJidXR0IiBzdHJva2UtbGluZWpvaW49Im1pdGVyIiBkPSJNMzEgMTd2MTIuNUgxNFYxNyIvPjxwYXRoIGQ9Im0zMSAyOS41IDEuNSAyLjVoLTIwbDEuNS0yLjUiLz48cGF0aCBmaWxsPSJub25lIiBzdHJva2UtbGluZWpvaW49Im1pdGVyIiBkPSJNMTEgMTRoMjMiLz48L2c+PC9zdmc+")}
 .pc.movable { cursor: grab; }
 .pc.dragging { opacity: .25; }
 .ghost { position: fixed; z-index: 1000; pointer-events: none; transform: translate(-50%, -50%); }
@@ -118,7 +164,7 @@ button.icon { padding: 6px 10px; }
 .bubble .fb { color: var(--accent); font-weight: 600; }
 .bubble .bad { color: var(--danger); font-weight: 600; }
 .status { display: flex; align-items: center; gap: 10px; font-weight: 600; }
-.status .turnpc { font-size: 28px; line-height: 1; }
+.status .turnpc { width: 34px; height: 34px; flex: none; position: static; }
 .status small { display: block; font-weight: 400; color: var(--muted); }
 .action-area { display: flex; gap: 8px; flex-wrap: wrap; }
 .action-area button { flex: 1; min-width: 120px; padding: 10px; }
@@ -153,7 +199,9 @@ dialog label { display: block; margin-top: 10px; font-size: 13.5px; }
   #btnMenu { display: inline-block; }
   .top { padding: 8px 12px; gap: 8px; }
   .stats { order: 3; flex-basis: 100%; }
-  .library { position: fixed; z-index: 500; left: 0; top: 0; bottom: 0; max-height: none; width: min(320px, 86vw); transform: translateX(-105%); transition: transform .2s; box-shadow: 4px 0 20px rgba(0,0,0,.3); }
+  .library { position: fixed; z-index: 500; left: 0; top: 0; bottom: 0; max-height: none; width: min(420px, 100vw); transform: translateX(-105%); transition: transform .2s; box-shadow: 4px 0 20px rgba(0,0,0,.3); }
+  .lib-close { display: inline-block; }
+  .ch-card { padding: 12px 10px 12px 8px; }
   .library.open { transform: none; }
   .main { padding: 12px 16px; gap: 12px; }
   .side { max-width: none; min-width: 0; width: 100%; }
@@ -177,7 +225,7 @@ dialog label { display: block; margin-top: 10px; font-size: 13.5px; }
 </header>
 <div class="layout">
   <aside id="library" class="library">
-    <div class="lib-head">Библиотека<small>Галочка — глава участвует в «Повторении» и «Вперемешку»</small></div>
+    <div class="lib-head"><span>Мои дебюты</span><button id="btnCloseLib" class="icon lib-close" title="Закрыть">✕</button></div>
     <div id="libList"></div>
   </aside>
   <main class="main">
@@ -254,6 +302,7 @@ dialog label { display: block; margin-top: 10px; font-size: 13.5px; }
 [Event "Белые: 1.e4"]
 [StudyName "Белые: репертуар 1.e4"]
 [ChapterName "★ 01. Итальянская: 3...Bc5, план c3 и d3"]
+[Trap "5...Ng4 — гоним коня ходом d4"]
 [Orientation "white"]
 
 { Начинаем с захвата центра: пешка e4. } 1. e4 e5 { Нападите конём на пешку e5. } 2. Nf3 Nc6 { Слон на c4 смотрит на слабое поле f7. } 3. Bc4 Bc5 { Итальянская партия. Готовим центр пешкой c3. } 4. c3 Nf6 ( 4... d6 { Защитите e4 заранее: d3. } 5. d3 Nf6 6. O-O O-O 7. Re1 ) { Чёрные напали на e4. Защитите её пешкой d3: спокойная, надёжная система. } 5. d3 d6 ( 5... O-O { Рокируйтесь. } 6. O-O d6 7. Re1 ) ( 5... Ng4?! { Частый ход новичков: конь метит на f2. Ударьте в центр: d4! Слон c5 под боем, и атака на f2 пропадает. } 6. d4 Bd6 7. O-O O-O 8. h3 { Конь g4 должен отступить. У белых большой центр. } ) { Делайте рокировку. } 6. O-O O-O { Ладья на e1 поддержит центр. } 7. Re1 a6 { Ход a4 не даст чёрным сыграть b5 с темпом на слона. } 8. a4 Ba7 { Ход h3 запрещает связку Bg4. } 9. h3 h6 { Конь идёт по маршруту b1–d2–f1–g3. } 10. Nbd2 Re8 11. Nf1 { План белых: Ng3, Be3, иногда d4. Медленная игра, где побеждает лучший план. [%cal Gf1g3,Gc1e3,Gd3d4] } *
@@ -261,6 +310,7 @@ dialog label { display: block; margin-top: 10px; font-size: 13.5px; }
 [Event "Белые: 1.e4"]
 [StudyName "Белые: репертуар 1.e4"]
 [ChapterName "★ 02. Итальянская: защита двух коней 3...Nf6"]
+[Trap "4...Nxe4?? — бесплатный конь"]
 [Orientation "white"]
 
 1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 { Защита двух коней. Чёрные нападают на e4. Защищаем её спокойно: d3. } 4. d3 ( 4. Ng5 { Так тоже играют, но это острая теория. В нашем репертуаре — спокойный ход d3. } ) 4... Be7 ( 4... Nxe4?? { Конь бьёт пешку, но он не защищён. Бейте пешкой! } 5. dxe4 Bb4+ 6. c3 Be7 7. Nbd2 { Белые с лишней фигурой. } ) ( 4... Bc5 { Позиция из главы 01. Играем c3. } 5. c3 d6 6. O-O O-O 7. Re1 a6 8. a4 ) ( 4... h6 { Чёрные запрещают Ng5. Рокируемся. } 5. O-O d6 6. c3 g6 7. Re1 Bg7 8. Nbd2 O-O 9. Nf1 ) 5. O-O O-O { Ладья — в центр. } 6. Re1 d6 { Пешка c3 готовит d4 и даёт слону поле c2. } 7. c3 Na5 { Конь нападает на слона. Уводите его на b5: поле свободно, ведь конь ушёл с c6. } 8. Bb5 a6 { Отступите на a4: слон держит диагональ. } 9. Ba4 b5 { Слон уходит на c2, где он смотрит на королевский фланг. } 10. Bc2 c5 { Конь пойдёт по маршруту d2–f1–g3. } 11. Nbd2 { Структура как в испанской партии. План: Nf1, Ng3, d4. } *
@@ -268,6 +318,7 @@ dialog label { display: block; margin-top: 10px; font-size: 13.5px; }
 [Event "Белые: 1.e4"]
 [StudyName "Белые: репертуар 1.e4"]
 [ChapterName "★ 03. Ловушка 3...Nd4: не бейте на e5!"]
+[Trap "3...Nd4: не бейте на e5"]
 [Orientation "white"]
 
 1. e4 e5 2. Nf3 Nc6 3. Bc4 Nd4 { Ловушка! Чёрные отдают пешку e5. Не жадничайте: разменяйте коня. } 4. Nxd4 ( 4. Nxe5? { Ошибка! После Qg5 чёрные нападают на коня и на g2: Qxg2, затем мат или выигрыш ладьи. } ) 4... exd4 { Рокируемся. } 5. O-O Bc5 ( 5... d6 { Готовим c3, чтобы вскрыть центр. } 6. c3 dxc3 7. Nxc3 Nf6 { Ферзь на b3: удар по f7 и b7 сразу. } 8. Qb3 Be6 9. Bxe6 fxe6 10. Qxe6+ { Белые выиграли пешку, король чёрных открыт. } ) { Пешка f7 защищена только королём. Бейте слоном с шахом! [%cal Gc4f7] } 6. Bxf7+ Kf8 ( 6... Kxf7 { Шах ферзём с h5: вилка на короля и слона c5. } 7. Qh5+ g6 8. Qd5+ Kg7 9. Qxc5 { Белые выиграли слона. } ) { Слон отступает, белые с лишней пешкой. Король чёрных потерял рокировку. } 7. Bb3 d6 8. d3 { Простой план: Nd2, f4, давление по линии f. } *
@@ -275,6 +326,7 @@ dialog label { display: block; margin-top: 10px; font-size: 13.5px; }
 [Event "Белые: 1.e4"]
 [StudyName "Белые: репертуар 1.e4"]
 [ChapterName "★ 03б. Мат Легаля: ловушка против 3...d6"]
+[Trap "Мат Легаля"]
 [Orientation "white"]
 
 1. e4 e5 2. Nf3 Nc6 3. Bc4 d6 { Пассивный ход. Развивайте коня. } 4. Nc3 Bg4 { Связка: конь f3 прикрывает ферзя. Спросите слона: h3. } 5. h3 Bh5 ( 5... Bxf3 { Бейте ферзём: у белых два слона. } 6. Qxf3 Nf6 7. Ne2 { Белым удобнее. } ) { Ловушка! Бейте на e5: связка мнимая. } 6. Nxe5 Bxd1?? ( 6... Nxe5 { Ферзь бьёт слона h5. } 7. Qxh5 Nxc4 { Шах с вилкой на короля и коня. } 8. Qb5+ c6 9. Qxc4 { Белые с лишней пешкой. } ) ( 6... dxe5 7. Qxh5 { Белые выиграли пешку. } ) { Черные взяли ферзя. Шах слоном! } 7. Bxf7+ Ke7 { Мат конём! } 8. Nd5# { Мат Легаля: три лёгкие фигуры сильнее ферзя. } *
@@ -282,6 +334,7 @@ dialog label { display: block; margin-top: 10px; font-size: 13.5px; }
 [Event "Белые: 1.e4"]
 [StudyName "Белые: репертуар 1.e4"]
 [ChapterName "04. Защита Филидора 2...d6"]
+[Trap "3...Bg4 — двойной удар Qb3"]
 [Orientation "white"]
 
 1. e4 e5 2. Nf3 d6 { Защита Филидора: пассивная. Сразу бейте в центр: d4. } 3. d4 exd4 ( 3... Bg4?! { Связка. Разменяйте пешки: dxe5. } 4. dxe5 Bxf3 5. Qxf3 dxe5 { Слон на c4: двойная угроза по f7. } 6. Bc4 Nf6 { Ферзь на b3 нападает и на f7, и на b7. } 7. Qb3 Qe7 8. Qxb7 Qb4+ 9. Qxb4 Bxb4+ 10. Bd2 { Лишняя пешка у белых. } ) ( 3... Nf6 { Развиваем коня. } 4. Nc3 Nbd7 { Слон на c4. } 5. Bc4 Be7 6. O-O O-O 7. Re1 c6 8. a4 { Белые свободнее, центр под контролем. } ) 4. Nxd4 Nf6 { Развиваем коня, защищаем e4. } 5. Nc3 Be7 6. Be2 O-O 7. O-O { Простая позиция: у белых больше пространства. План: f4, Be3, Qd2. } *
@@ -289,6 +342,7 @@ dialog label { display: block; margin-top: 10px; font-size: 13.5px; }
 [Event "Белые: 1.e4"]
 [StudyName "Белые: репертуар 1.e4"]
 [ChapterName "05. Русская партия 2...Nf6"]
+[Trap "3...Nxe4? — вскрытый шах Nc6+"]
 [Orientation "white"]
 
 1. e4 e5 2. Nf3 Nf6 { Русская партия (Петров). Бейте пешку e5. } 3. Nxe5 d6 ( 3... Nxe4? { Частая ошибка! Ферзь на e2 нападает на коня по линии e. } 4. Qe2 Qe7 ( 4... Nf6?? { Вскрытый шах! Конь с шахом нападает на ферзя. } 5. Nc6+ Be7 6. Nxd8 ) 5. Qxe4 d6 6. d4 dxe5 7. dxe5 { У белых лишняя пешка. } ) { Конь отступает. } 4. Nf3 Nxe4 { Центральный удар d4. } 5. d4 d5 6. Bd3 Be7 7. O-O Nc6 { Подрывом c4 белые атакуют центр. } 8. c4 { Главная линия. Белые давят на d5. } *
@@ -296,6 +350,7 @@ dialog label { display: block; margin-top: 10px; font-size: 13.5px; }
 [Event "Белые: 1.e4"]
 [StudyName "Белые: репертуар 1.e4"]
 [ChapterName "★ 06. Редкие ответы: 2...f6, 2...d5, 2...f5"]
+[Trap "Наказание за 2...f6"]
 [Orientation "white"]
 
 1. e4 e5 2. Nf3 f6?! { Защита Дамиано: слабая. Жертвуйте коня на e5! } ( 2... d5?! { Гамбит слона. Берите пешку. } 3. exd5 e4 { Ферзь на e2 связывает пешку e4. } 4. Qe2 Nf6 5. d3 Be7 6. dxe4 O-O 7. Nc3 { Белые с лишней пешкой. } ) ( 2... f5?! { Латышский гамбит. Бейте на e5. } 3. Nxe5 Qf6 { Укрепите центр пешкой d4. } 4. d4 d6 5. Nc4 fxe4 6. Nc3 { Белые лучше развиты. Конь и ферзь чёрных скоро станут мишенями. } ) 3. Nxe5 fxe5 ( 3... Qe7 { Отступайте конём на f3. } 4. Nf3 Qxe4+ 5. Be2 { Белые быстрее развиваются, король чёрных открыт. } ) { Шах ферзём с h5! } 4. Qh5+ g6 ( 4... Ke7 { Берите пешку с шахом. } 5. Qxe5+ Kf7 6. Bc4+ d5 7. Bxd5+ Kg6 { Шах ферзём с g3. } 8. Qg3+ Qg5 { Берите пешку c7: у белых уже три пешки за коня и атака. } 9. Qxc7 { Король чёрных в центре доски, у белых большой перевес. } ) { Берите e5 с шахом и вилкой. } 5. Qxe5+ Qe7 6. Qxh8 Nf6 { Защитите e4 конём. } 7. Nc3 { Белые выиграли ладью. } *
@@ -388,6 +443,7 @@ dialog label { display: block; margin-top: 10px; font-size: 13.5px; }
 [Event "Чёрные против 1.e4"]
 [StudyName "Чёрные: против 1.e4 (1...e5)"]
 [ChapterName "★ 04. Наскок 4.Ng5: конь висит!"]
+[Trap "Висящий конь на g5"]
 [Orientation "black"]
 
 1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. Ng5 { Белые грозят Nxf7. Но конь g5 никем не защищён, а ферзь d8 его видит. Бейте! [%cal Gd8g5] } 4... Qxg5 ( 4... Nf6? { Так конь g5 остаётся жив, и белые бьют на f7 с вилкой. Берите коня ферзём! } ) 5. O-O ( 5. d4 { Слон c5 атакован, но ферзь бьёт g2 и метит на ладью h1. } 5... Qxg2 6. dxc5 Qxh1+ 7. Bf1 Qxe4+ { Чёрные выиграли ладью и пешки. } ) ( 5. Bxf7+ { Бейте королём. } 5... Kxf7 6. O-O Qg6 { У чёрных лишняя фигура. } ) { Ферзь отступает на h4 и держит центр. } 5... Qh4 6. d3 Nf6 { Чёрные с лишним конём. Дальше: рокировка и спокойное развитие. } *
@@ -395,6 +451,7 @@ dialog label { display: block; margin-top: 10px; font-size: 13.5px; }
 [Event "Чёрные против 1.e4"]
 [StudyName "Чёрные: против 1.e4 (1...e5)"]
 [ChapterName "★ 05. Ранний ферзь 2.Qh5 и детский мат"]
+[Trap "Детский мат и вилка Nd4"]
 [Orientation "black"]
 
 1. e4 e5 2. Qh5 { Ферзь нападает на e5 и f7. Защитите пешку конём. } 2... Nc6 ( 2... g6?? { Ошибка: Qxe5+ с вилкой на короля и ладью h8. } ) 3. Bc4 { Угроза мата на f7! Перекройте ферзя: g6. } 3... g6 ( 3... Nf6?? { Детский мат: Qxf7#! } ) 4. Qf3 { Снова угроза мата на f7. Закройте линию конём. } 4... Nf6 ( 4... d6?? { Мат: Qxf7#. } ) 5. Ne2 ( 5. Qb3 { Опять угроза f7. Но есть удар сильнее защиты: конь d4 нападает на ферзя и на c2! } 5... Nd4 6. Bxf7+ ( 6. Qc3 { Бейте пешку e4. } 6... Nxe4 { Ферзь атакован, вилка на c2 остаётся. Чёрные выигрывают. } ) 6... Ke7 7. Qc4 b5 8. Qd3 Kxf7 { Чёрные выиграли фигуру. } ) { Слон — на длинную диагональ. } 5... Bg7 6. Nbc3 d6 7. d3 { Рокируйтесь: король в безопасности. } 7... O-O 8. h3 Be6 { Размен слона c4. У чёрных отличная позиция: ферзь белых вышел зря. } *
@@ -423,6 +480,7 @@ dialog label { display: block; margin-top: 10px; font-size: 13.5px; }
 [Event "Чёрные против 1.e4"]
 [StudyName "Чёрные: против 1.e4 (1...e5)"]
 [ChapterName "09. Испанская: разменный вариант 4.Bxc6"]
+[Trap "5.Nxe5?! — вилка Qd4"]
 [Orientation "black"]
 
 1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Bxc6 { Бейте пешкой d: откроется слон c8. } 4... dxc6 5. O-O ( 5. Nxe5?! { Ферзь d4: вилка на коня и e4. } 5... Qd4 6. Nf3 Qxe4+ 7. Qe2 Qxe2+ 8. Kxe2 { Материал равный, у чёрных два слона. } ) { Защитите e5 пешкой f6. } 5... f6 6. d4 exd4 7. Nxd4 c5 8. Nb3 Qxd1 9. Rxd1 Bg4 10. f3 Be6 { Два слона компенсируют сдвоенные пешки. } *
@@ -437,6 +495,7 @@ dialog label { display: block; margin-top: 10px; font-size: 13.5px; }
 [Event "Чёрные против 1.e4"]
 [StudyName "Чёрные: против 1.e4 (1...e5)"]
 [ChapterName "11. Королевский гамбит 2.f4"]
+[Trap "3.fxe5?? — шах Qh4+ и ладья h1"]
 [Orientation "black"]
 
 1. e4 e5 2. f4 { Королевский гамбит. Не берём: слон на c5 мешает белому королю. } 2... Bc5 3. Nf3 ( 3. fxe5?? { Шах ферзём с h4! } 3... Qh4+ 4. g3 Qxe4+ 5. Qe2 Qxh1 { Вилка: чёрные выиграли ладью. } ) ( 3. Nc3 { Сначала d6: укрепите e5. Ход Nf6 здесь ошибка — после fxe5 конь под ударом. } 3... d6 4. Nf3 Nf6 5. Bc4 O-O 6. d3 Nbd7 ) { Укрепите e5: d6. } 3... d6 4. c3 Nf6 5. d4 exd4 6. cxd4 Bb6 7. Nc3 O-O { Чёрные быстрее развиты. Центр белых — мишень. } *
@@ -473,6 +532,7 @@ dialog label { display: block; margin-top: 10px; font-size: 13.5px; }
 [Event "Чёрные против 1.d4"]
 [StudyName "Чёрные: против 1.d4, 1.c4, 1.Nf3"]
 [ChapterName "★ 02. Ловушка: капкан в ферзевом гамбите"]
+[Trap "Капкан: 6.Nxd5?"]
 [Orientation "black"]
 
 1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 { Другой порядок ходов: конь на d7. } 4... Nbd7 5. cxd5 exd5 6. Nxd5? ( 6. e3 6... c6 7. Bd3 Be7 8. Qc2 O-O ) { Ловушка! Бейте коня, не бойтесь за ферзя. } 6... Nxd5 7. Bxd8 { Шах слоном! } 7... Bb4+ 8. Qd2 Bxd2+ 9. Kxd2 Kxd8 { Чёрные выиграли фигуру. } *
@@ -800,7 +860,8 @@ if (typeof module !== 'undefined') module.exports = Core;
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
   var KEY = 'debut-trainer-v1';
-  var GLYPH = { k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' };
+  // Класс картинки фигуры (SVG cburnett встроены в CSS): w + K → "pwK"
+  function pcls(color, type) { return 'p' + color + type.toUpperCase(); }
   var VS = '︎'; // текстовое начертание, не эмодзи
   var ARROW = { G: '#15781B', R: '#c0392b', Y: '#e68f00', B: '#1f5fbf' };
   var SIDE_NAME = { w: 'белых', b: 'чёрных' };
@@ -874,9 +935,13 @@ if (typeof module !== 'undefined') module.exports = Core;
   }
   function allChapters() { var a = []; courses.forEach(function (c) { a = a.concat(c.chapters); }); return a; }
   function chapterById(id) { return allChapters().filter(function (c) { return c.id === id; })[0] || null; }
+  // Для «Повторения» и «Вперемешку»: главы, которые вы уже проходили; если таких нет — главные (★)
   function chosenChapters() {
-    var all = allChapters(), sel = all.filter(function (c) { return store.selected[c.id]; });
-    return sel.length ? sel : all;
+    var all = allChapters();
+    var started = all.filter(function (c) { var p = store.progress[c.id]; return p && (p.lesson || p.drill); });
+    if (started.length) return started;
+    var stars = all.filter(function (c) { return /^★/.test(c.name); });
+    return stars.length ? stars : all;
   }
 
   // ---------- Сессия ----------
@@ -1144,7 +1209,7 @@ if (typeof module !== 'undefined') module.exports = Core;
       var p = chess.get(sq);
       if (p) {
         var mov = canMove() && p.color === chess.turn() ? ' movable' : '';
-        inner += '<span class="pc ' + p.color + mov + '" data-sq="' + sq + '">' + GLYPH[p.type] + VS + '</span>';
+        inner += '<span class="pc ' + p.color + ' ' + pcls(p.color, p.type) + mov + '" data-sq="' + sq + '"></span>';
       }
       if (dests[sq]) inner += '<span class="' + (dests[sq] === 'ring' ? 'ring' : 'dotm') + '"></span>';
       html += '<div class="' + cls + '" data-sq="' + sq + '">' + inner + '</div>';
@@ -1199,7 +1264,8 @@ if (typeof module !== 'undefined') module.exports = Core;
       var pcEl = boardEl.querySelector('.pc[data-sq="' + drag.from + '"]');
       if (pcEl) {
         var g = pcEl.cloneNode(true); g.classList.add('ghost'); g.classList.remove('movable');
-        g.style.fontSize = getComputedStyle(pcEl).fontSize;
+        var pr = pcEl.getBoundingClientRect();
+        g.style.width = pr.width + 'px'; g.style.height = pr.height + 'px';
         document.body.appendChild(g); drag.ghost = g; pcEl.classList.add('dragging');
       }
     }
@@ -1235,7 +1301,7 @@ if (typeof module !== 'undefined') module.exports = Core;
     box.innerHTML = '';
     ['q', 'r', 'b', 'n'].forEach(function (t) {
       var btn = document.createElement('button');
-      btn.innerHTML = '<span class="pc ' + color + '" style="font-size:' + (size * .7) + 'px">' + GLYPH[t] + VS + '</span>';
+      btn.innerHTML = '<span class="pc ' + pcls(color, t) + '" style="width:' + (size * .8) + 'px;height:' + (size * .8) + 'px"></span>';
       btn.onclick = function () { box.classList.add('hidden'); cb(t); };
       box.appendChild(btn);
     });
@@ -1267,8 +1333,10 @@ if (typeof module !== 'undefined') module.exports = Core;
       title.textContent = 'Повторение';
       sub.textContent = S.chapter.course.name + ' · ' + S.chapter.name;
     } else {
-      title.textContent = S.chapter.name;
-      sub.textContent = S.chapter.course.name + ' · за ' + side + (S.mode === 'mix' ? ' · вперемешку' : '');
+      var pn = parseName(S.chapter.name);
+      title.textContent = pn.title + (pn.sub ? ': ' + pn.sub : '');
+      sub.textContent = 'За ' + side + ' · ' + S.chapter.course.name + (S.mode === 'mix' ? ' · вперемешку' : '') +
+        (isTrap(S.chapter) ? ' · 🪤 ' + S.chapter.headers.Trap : '');
     }
 
     // Облако тренера
@@ -1298,7 +1366,7 @@ if (typeof module !== 'undefined') module.exports = Core;
     else if (S.state === 'opp') st = 'Ход соперника…';
     else if (S.state === 'wrong') st = 'Ошибка<small>Нажмите «Повторить» или Enter</small>';
     else if (S.state === 'review-ok') st = 'Верно<small>Enter — следующая позиция</small>';
-    status.innerHTML = st ? '<span class="turnpc pc ' + turn + '">' + GLYPH.k + VS + '</span><div>' + st + '</div>' : '';
+    status.innerHTML = st ? '<span class="turnpc pc ' + pcls(turn, 'k') + '"></span><div>' + st + '</div>' : '';
 
     // Кнопки действий
     act.innerHTML = '';
@@ -1356,53 +1424,106 @@ if (typeof module !== 'undefined') module.exports = Core;
   function renderAll() { renderBoard(); renderSide(); renderStats(); }
 
   // ---------- Библиотека ----------
+  // Разбор названия главы: «★ 03б. Мат Легаля: ловушка против 3...d6»
+  function parseName(name) {
+    var m = /^(★\s*)?(\d+[а-яa-z]?)\.\s*(.*)$/i.exec(name || '');
+    if (!m) return { star: false, num: '', title: name, sub: '' };
+    var rest = m[3], i = rest.indexOf(':');
+    return { star: !!m[1], num: m[2], title: i > 0 ? rest.slice(0, i) : rest, sub: i > 0 ? rest.slice(i + 1).trim() : '' };
+  }
+  function chStatus(ch) {
+    var p = store.progress[ch.id] || {};
+    if (p.clean) return { key: 'done', text: 'Выучено', icon: '✓' };
+    if (p.drill) return { key: 'half', text: 'Закрепить', icon: '◐' };
+    if (p.lesson) return { key: 'half', text: 'Урок пройден', icon: '◐' };
+    return { key: 'new', text: 'Новая', icon: '' };
+  }
+  function isTrap(ch) { return !!ch.headers.Trap; }
+  // Вкладки: курсы + «Ловушки»
+  function libTabs() {
+    var tabs = courses.map(function (c) {
+      var side = c.chapters[0] ? c.chapters[0].orientation : 'w';
+      var short = c.name.replace(/^Белые:\s*(репертуар\s*)?/, 'Белые ').replace(/^Чёрные:\s*/, '').replace(/\s*\(.*\)$/, '').replace(/^против\s*/i, 'Против ').replace(/,.*$/, '');
+      return { id: c.id, label: short, icon: side === 'w' ? 'pwK' : 'pbK', chapters: c.chapters, course: c };
+    });
+    var traps = allChapters().filter(isTrap);
+    if (traps.length) tabs.push({ id: 'traps', label: 'Ловушки', emoji: '🪤', chapters: traps });
+    return tabs;
+  }
+  function currentTab(tabs) {
+    var t = tabs.filter(function (x) { return x.id === store.libTab; })[0];
+    if (!t && S && S.chapter) t = tabs.filter(function (x) { return x.id === S.chapter.course.id; })[0];
+    return t || tabs[0];
+  }
+  function nextToLearn(chs) {
+    var open = chs.filter(function (c) { return chStatus(c).key !== 'done'; });
+    return open.filter(function (c) { return parseName(c.name).star; })[0] || open[0] || null;
+  }
+
   function renderLibrary() {
     var list = $('libList');
-    if (!courses.length) { list.innerHTML = '<div class="lib-empty">Курсов нет. Нажмите «＋ Импорт».</div>'; return; }
-    var h = '';
-    courses.forEach(function (c) {
-      var collapsed = store.collapsed[c.id];
-      var allSel = c.chapters.length && c.chapters.every(function (ch) { return store.selected[ch.id]; });
-      h += '<div class="course"><div class="course-head" data-course="' + c.id + '">' +
-        '<input type="checkbox" data-selcourse="' + c.id + '"' + (allSel ? ' checked' : '') + ' title="Отметить все главы">' +
-        '<span class="cname">' + (collapsed ? '▸ ' : '▾ ') + esc(c.name) + '</span><span class="cmeta">' + c.chapters.length + '</span>' +
-        '<button data-rename="' + c.id + '" title="Переименовать">✎</button><button data-del="' + c.id + '" title="Удалить курс">✕</button></div>';
-      if (!collapsed) {
-        h += '<div class="chapters">';
-        c.chapters.forEach(function (ch) {
-          var p = store.progress[ch.id] || {};
-          var lvl = p.clean ? 'l2' : (p.lesson || p.drill) ? 'l1' : '';
-          var dot = p.clean ? '●' : (p.lesson || p.drill) ? '◐' : '○';
-          var title = p.clean ? 'Закрепление пройдено без ошибок' : p.drill ? 'Закрепление пройдено с ошибками' : p.lesson ? 'Урок пройден' : 'Не начата';
-          var active = S && S.chapter === ch ? ' active' : '';
-          h += '<div class="chapter' + active + '" data-ch="' + ch.id + '">' +
-            '<input type="checkbox" data-sel="' + ch.id + '"' + (store.selected[ch.id] ? ' checked' : '') + '>' +
-            '<span class="dot ' + lvl + '" title="' + title + '">' + dot + '</span>' +
-            '<span class="cn" title="' + esc(ch.name) + '">' + esc(ch.name) + '</span>' +
-            (p.attempts && p.lastErrors ? '<span class="err" title="Ошибок в последней попытке">' + p.lastErrors + '</span>' : '') +
-            (ch.warnings.length ? '<span class="err" title="' + esc(ch.warnings.join('\n')) + '">⚠</span>' : '') + '</div>';
-        });
-        h += '</div>';
-      }
-      h += '</div>';
+    if (!courses.length) { list.innerHTML = '<div class="lib-empty">Курсов нет. Нажмите «＋» и добавьте PGN.</div>'; return; }
+    var tabs = libTabs(), tab = currentTab(tabs);
+    var onlyStar = store.libStar !== false;
+    var h = '<div class="lib-tabs" role="tablist">';
+    tabs.forEach(function (t) {
+      h += '<button class="lib-tab' + (t === tab ? ' on' : '') + '" data-tab="' + t.id + '" role="tab">' +
+        (t.emoji ? '<span class="tab-ico">' + t.emoji + '</span>' : '<span class="tab-ico pc ' + t.icon + '"></span>') +
+        '<span>' + esc(t.label) + '</span></button>';
     });
+    h += '</div>';
+
+    var chs = tab.chapters;
+    var done = chs.filter(function (c) { return chStatus(c).key === 'done'; }).length;
+    var started = chs.filter(function (c) { return chStatus(c).key !== 'new'; }).length;
+    var stars = chs.filter(function (c) { return parseName(c.name).star; });
+    h += '<div class="lib-progress"><div class="lp-row"><b>Выучено ' + done + ' из ' + chs.length + '</b><span>начато ' + started + '</span></div>' +
+      '<div class="lp-bar"><i style="width:' + (chs.length ? Math.round(done / chs.length * 100) : 0) + '%"></i></div></div>';
+
+    var next = nextToLearn(chs);
+    if (next) {
+      var pn = parseName(next.name);
+      h += '<button class="lib-continue" data-ch="' + next.id + '"><span class="lc-kicker">' + (started ? 'Продолжить' : 'Начать') + '</span>' +
+        '<span class="lc-title">' + esc(pn.title) + '</span>' + (pn.sub ? '<span class="lc-sub">' + esc(pn.sub) + '</span>' : '') + '<span class="lc-arrow">→</span></button>';
+    }
+
+    if (tab.id !== 'traps' && stars.length && stars.length < chs.length) {
+      h += '<div class="lib-filter"><button data-star="1" class="' + (onlyStar ? 'on' : '') + '">★ Главное (' + stars.length + ')</button>' +
+        '<button data-star="0" class="' + (!onlyStar ? 'on' : '') + '">Все главы (' + chs.length + ')</button></div>';
+    }
+    if (tab.id === 'traps') h += '<p class="lib-note">Ловушки — частые ошибки соперников на вашем уровне. Учитесь их наказывать.</p>';
+
+    var shown = (tab.id !== 'traps' && onlyStar && stars.length && stars.length < chs.length) ? stars : chs;
+    h += '<div class="ch-list">';
+    shown.forEach(function (ch) {
+      var pn = parseName(ch.name), st = chStatus(ch), p = store.progress[ch.id] || {};
+      var active = S && S.chapter === ch ? ' active' : '';
+      var side = ch.orientation === 'w' ? 'за белых' : 'за чёрных';
+      h += '<button class="ch-card st-' + st.key + active + '" data-ch="' + ch.id + '">' +
+        '<span class="ch-num">' + (st.key === 'done' ? '✓' : esc(pn.num || '•')) + '</span>' +
+        '<span class="ch-body"><span class="ch-title">' + esc(pn.title) + (pn.star && tab.id !== 'traps' ? ' <span class="ch-star" title="Главное">★</span>' : '') + '</span>' +
+        (pn.sub ? '<span class="ch-sub">' + esc(pn.sub) + '</span>' : '') +
+        (isTrap(ch) ? '<span class="ch-trap">🪤 ' + esc(ch.headers.Trap) + (tab.id === 'traps' ? ' · ' + side : '') + '</span>' : '') +
+        '</span><span class="ch-pill">' + st.text + (p.attempts && p.lastErrors && st.key !== 'done' ? ' · ош. ' + p.lastErrors : '') + '</span>' +
+        (ch.warnings.length ? '<span class="ch-warn" title="' + esc(ch.warnings.join('\n')) + '">⚠</span>' : '') + '</button>';
+    });
+    h += '</div>';
+
+    if (tab.course) {
+      h += '<div class="lib-course-actions"><button data-rename="' + tab.id + '">✎ Переименовать курс</button><button data-del="' + tab.id + '">Удалить курс</button></div>';
+    }
     list.innerHTML = h;
+    var on = list.querySelector('.lib-tab.on'); if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   }
 
   $('libList').addEventListener('click', function (e) {
-    var t = e.target, d;
-    if ((d = t.getAttribute('data-sel'))) { if (t.checked) store.selected[d] = true; else delete store.selected[d]; save(); renderLibrary(); renderStats(); return; }
-    if ((d = t.getAttribute('data-selcourse'))) {
-      var c = courses.filter(function (x) { return x.id === d; })[0];
-      c.chapters.forEach(function (ch) { if (t.checked) store.selected[ch.id] = true; else delete store.selected[ch.id]; });
-      save(); renderLibrary(); renderStats(); return;
-    }
+    var t = e.target.closest('button'); if (!t) return;
+    var d;
+    if ((d = t.getAttribute('data-tab'))) { store.libTab = d; save(); renderLibrary(); return; }
+    if ((d = t.getAttribute('data-star')) != null) { store.libStar = d === '1'; save(); renderLibrary(); return; }
     if ((d = t.getAttribute('data-rename'))) { renameCourse(d); return; }
     if ((d = t.getAttribute('data-del'))) { deleteCourse(d); return; }
-    var row = t.closest('.chapter');
-    if (row) { startChapter(chapterById(row.getAttribute('data-ch')), 'lesson'); return; }
-    var head = t.closest('.course-head');
-    if (head) { var id = head.getAttribute('data-course'); store.collapsed[id] = !store.collapsed[id]; save(); renderLibrary(); }
+    if ((d = t.getAttribute('data-ch'))) { startChapter(chapterById(d), 'lesson'); }
   });
 
   // Окно вопроса внутри страницы (confirm/prompt работают не везде)
@@ -1585,6 +1706,7 @@ if (typeof module !== 'undefined') module.exports = Core;
   $('btnMix').addEventListener('click', startMix);
 
   function closeDrawer() { $('library').classList.remove('open'); }
+  $('btnCloseLib').addEventListener('click', closeDrawer);
   $('btnMenu').addEventListener('click', function (e) { e.stopPropagation(); $('library').classList.toggle('open'); });
   document.addEventListener('click', function (e) {
     var lib = $('library');
