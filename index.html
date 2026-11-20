@@ -1,0 +1,1626 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Дебютный тренажёр</title>
+<meta name="theme-color" content="#2f7d4f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Дебюты">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232f7d4f'/%3E%3Ctext x='50' y='74' font-size='68' text-anchor='middle' fill='white'%3E%E2%99%9E%3C/text%3E%3C/svg%3E">
+<style>
+:root {
+  --bg: #e9ece7; --panel: #ffffff; --panel2: #f3f5f1; --text: #22201c; --muted: #6f6a60;
+  --border: #e0dbd0; --accent: #2f7d4f; --accent-text: #fff; --danger: #c0392b; --warn: #b7791f;
+  --light: #f0d9b5; --dark: #b58863; --last: rgba(155, 199, 0, .45); --sel: rgba(20, 85, 30, .5);
+  --wrong: rgba(220, 50, 40, .45); --hint: rgba(30, 120, 220, .45); --shadow: 0 2px 10px rgba(0,0,0,.08);
+  --bubble: #ffffff; --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1a18; --panel: #262422; --panel2: #201f1d; --text: #ece8e1; --muted: #a39d92;
+    --border: #3a3733; --accent: #4caf73; --accent-text: #0f1a12; --danger: #e5604f; --warn: #e0a84a;
+    --bubble: #302d2a; --shadow: 0 2px 10px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1a18; --panel: #262422; --panel2: #201f1d; --text: #ece8e1; --muted: #a39d92;
+  --border: #3a3733; --accent: #4caf73; --accent-text: #0f1a12; --danger: #e5604f; --warn: #e0a84a;
+  --bubble: #302d2a; --shadow: 0 2px 10px rgba(0,0,0,.4);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--text); font: 15px/1.45 "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; overflow-x: hidden; }
+button, select, input, textarea { font: inherit; color: inherit; }
+button { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; cursor: pointer; }
+button:hover:not(:disabled) { border-color: var(--accent); }
+button:disabled { opacity: .45; cursor: default; }
+button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
+button.danger { background: var(--danger); color: #fff; border-color: var(--danger); font-weight: 600; }
+button.icon { padding: 6px 10px; }
+.hidden { display: none !important; }
+
+/* Верхняя панель */
+.top { display: flex; align-items: center; gap: 12px; padding: 8px 16px; background: var(--panel); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.brand { font-weight: 700; font-size: 17px; white-space: nowrap; }
+.stats { color: var(--muted); font-size: 13px; flex: 1; min-width: 120px; }
+.stats b { color: var(--text); }
+.top-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+#btnMenu { display: none; }
+.ico { display: none; }
+@media (max-width: 600px) {
+  .top .lbl { display: none; }
+  .top .ico { display: inline; }
+  .top-actions { flex-wrap: nowrap; }
+}
+
+/* Раскладка */
+.layout { display: flex; min-height: calc(100vh - 54px); }
+.library { width: 290px; flex: none; background: var(--panel2); border-right: 1px solid var(--border); overflow-y: auto; max-height: calc(100vh - 54px); position: sticky; top: 0; }
+.lib-head { padding: 12px 14px 6px; font-weight: 700; }
+.lib-head small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
+.course { border-bottom: 1px solid var(--border); }
+.course-head { display: flex; align-items: center; gap: 6px; padding: 8px 10px 8px 14px; cursor: pointer; }
+.course-head .cname { flex: 1; font-weight: 600; font-size: 14px; }
+.course-head .cmeta { color: var(--muted); font-size: 12px; }
+.course-head button { padding: 2px 6px; font-size: 12px; background: transparent; border-color: transparent; }
+.course-head button:hover { border-color: var(--border); }
+.chapters { padding: 0 0 6px; }
+.chapter { display: flex; align-items: center; gap: 6px; padding: 5px 10px 5px 14px; cursor: pointer; font-size: 13.5px; }
+.chapter:hover { background: var(--panel); }
+.chapter.active { background: var(--panel); box-shadow: inset 3px 0 0 var(--accent); }
+.chapter .cn { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+.chapter .dot { width: 14px; text-align: center; color: var(--muted); }
+.chapter .dot.l1 { color: var(--warn); }
+.chapter .dot.l2 { color: var(--accent); }
+.chapter .err { font-size: 11px; color: var(--danger); }
+.chapter input { margin: 0; }
+.lib-empty { padding: 14px; color: var(--muted); }
+
+/* Основная часть */
+.main { flex: 1; display: flex; gap: 20px; padding: 16px; align-items: flex-start; justify-content: center; flex-wrap: wrap; min-width: 0; }
+.board-wrap { --sz: min(calc(100vw - 32px), calc(100vh - 100px), 620px); width: var(--sz); flex: none; }
+@media (min-width: 901px) { .board-wrap { --sz: min(calc(100vw - 290px - 420px), calc(100vh - 100px), 640px); min-width: 320px; } }
+.board { position: relative; width: var(--sz); height: var(--sz); min-width: 280px; min-height: 280px; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); border-radius: 4px; overflow: hidden; box-shadow: var(--shadow); user-select: none; touch-action: none; }
+.sq { position: relative; display: flex; align-items: center; justify-content: center; }
+.sq.l { background: var(--light); } .sq.d { background: var(--dark); }
+.sq.last::before, .sq.sel::before, .sq.wrong::before, .sq.hint::before, .sq.check::before { content: ""; position: absolute; inset: 0; }
+.sq.last::before { background: var(--last); }
+.sq.sel::before { background: var(--sel); }
+.sq.wrong::before { background: var(--wrong); }
+.sq.hint::before { background: var(--hint); }
+.sq.check::before { background: radial-gradient(circle, rgba(255,0,0,.8) 0%, rgba(255,0,0,.3) 45%, transparent 70%); }
+.sq .dotm { position: absolute; width: 28%; height: 28%; border-radius: 50%; background: rgba(20, 85, 30, .45); z-index: 2; pointer-events: none; }
+.sq .ring { position: absolute; inset: 4%; border-radius: 50%; border: calc(var(--sz) / 8 * .08) solid rgba(20, 85, 30, .45); z-index: 2; pointer-events: none; }
+.coord { position: absolute; font-size: calc(var(--sz) / 8 * .17); font-weight: 600; pointer-events: none; z-index: 1; }
+.coord.f { right: 3px; bottom: 1px; } .coord.r { left: 3px; top: 1px; }
+.sq.l .coord { color: var(--dark); } .sq.d .coord { color: var(--light); }
+.pc { position: relative; z-index: 3; font-size: calc(var(--sz) / 8 * .82); line-height: 1; cursor: default; font-family: "Segoe UI Symbol", "Noto Sans Symbols2", "DejaVu Sans", "Arial Unicode MS", serif; }
+.pc.w { color: #fff; text-shadow: 0 0 1px #000, 0 0 1px #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 2px 3px rgba(0,0,0,.35); }
+.pc.b { color: #1d1b19; text-shadow: 0 0 1px #fff8, 0 2px 3px rgba(0,0,0,.35); }
+.pc.movable { cursor: grab; }
+.pc.dragging { opacity: .25; }
+.ghost { position: fixed; z-index: 1000; pointer-events: none; transform: translate(-50%, -50%); }
+.arrows { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4; }
+
+/* Боковая панель */
+.side { flex: 1; min-width: 300px; max-width: 420px; display: flex; flex-direction: column; gap: 10px; }
+.chapter-head #chTitle { font-weight: 700; font-size: 17px; }
+.chapter-head #chSub { color: var(--muted); font-size: 13px; }
+.modes { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; width: max-content; }
+.modes button { border: none; border-radius: 0; padding: 6px 16px; background: var(--panel); }
+.modes button.on { background: var(--accent); color: var(--accent-text); font-weight: 600; }
+.coach { display: flex; gap: 10px; align-items: flex-start; }
+.coach .avatar { font-size: 34px; line-height: 1; flex: none; }
+.bubble { position: relative; background: var(--bubble); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; box-shadow: var(--shadow); min-height: 48px; flex: 1; }
+.bubble p { margin: 0 0 6px; } .bubble p:last-child { margin: 0; }
+.bubble .fb { color: var(--accent); font-weight: 600; }
+.bubble .bad { color: var(--danger); font-weight: 600; }
+.status { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.status .turnpc { font-size: 28px; line-height: 1; }
+.status small { display: block; font-weight: 400; color: var(--muted); }
+.action-area { display: flex; gap: 8px; flex-wrap: wrap; }
+.action-area button { flex: 1; min-width: 120px; padding: 10px; }
+.big-retry { font-size: 17px; }
+.controls { display: flex; gap: 6px; flex-wrap: wrap; }
+.moves { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 13.5px; min-height: 40px; max-height: 180px; overflow-y: auto; color: var(--muted); }
+.moves .mv { color: var(--text); margin-right: 4px; }
+.moves .num { margin-right: 2px; }
+.moves .mv.cur { background: var(--accent); color: var(--accent-text); border-radius: 4px; padding: 0 3px; }
+.done-card { background: var(--panel); border: 1px solid var(--accent); border-radius: var(--radius); padding: 12px 14px; }
+.done-card h3 { margin: 0 0 4px; }
+
+/* Окна */
+dialog { border: 1px solid var(--border); border-radius: 12px; background: var(--panel); color: var(--text); padding: 18px; width: min(560px, calc(100vw - 32px)); box-shadow: 0 10px 40px rgba(0,0,0,.3); }
+dialog::backdrop { background: rgba(0,0,0,.45); }
+dialog h2 { margin: 0 0 12px; font-size: 18px; }
+dialog h3 { margin: 14px 0 6px; font-size: 14px; }
+dialog textarea { width: 100%; min-height: 110px; background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; padding: 8px; font: 13px/1.4 Consolas, monospace; }
+dialog input[type=text], dialog input[type=url], dialog input[type=number], dialog select { width: 100%; background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 9px; }
+dialog .row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+dialog .row > * { flex: 1; }
+dialog .note { color: var(--muted); font-size: 12.5px; margin: 4px 0 0; }
+dialog .foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+dialog label { display: block; margin-top: 10px; font-size: 13.5px; }
+.promo { position: fixed; z-index: 2000; display: flex; gap: 4px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 6px; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
+.promo button { font-size: 38px; line-height: 1; padding: 4px 8px; background: var(--light); }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #222; color: #fff; padding: 9px 16px; border-radius: 8px; font-size: 14px; opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 3000; max-width: calc(100vw - 32px); }
+.toast.show { opacity: .95; }
+
+/* Телефон */
+@media (max-width: 900px) {
+  #btnMenu { display: inline-block; }
+  .top { padding: 8px 12px; gap: 8px; }
+  .stats { order: 3; flex-basis: 100%; }
+  .library { position: fixed; z-index: 500; left: 0; top: 0; bottom: 0; max-height: none; width: min(320px, 86vw); transform: translateX(-105%); transition: transform .2s; box-shadow: 4px 0 20px rgba(0,0,0,.3); }
+  .library.open { transform: none; }
+  .main { padding: 12px 16px; gap: 12px; }
+  .side { max-width: none; min-width: 0; width: 100%; }
+  .top-actions button { padding: 6px 9px; font-size: 13.5px; }
+}
+
+</style>
+</head>
+<body>
+<header class="top">
+  <button id="btnMenu" class="icon" title="Библиотека">☰</button>
+  <div class="brand">♞<span class="lbl"> Дебютный тренажёр</span></div>
+  <div class="stats" id="stats"></div>
+  <div class="top-actions">
+    <button id="btnReview" class="primary" title="Интервальное повторение позиций">Повторение <span id="dueCount"></span></button>
+    <button id="btnMix" title="Вперемешку: случайные главы из отмеченных"><span class="lbl">Вперемешку</span><span class="ico">🔀</span></button>
+    <button id="btnImport" title="Импорт PGN">＋<span class="lbl"> Импорт</span></button>
+    <button id="btnSettings" class="icon" title="Настройки">⚙</button>
+    <button id="btnTheme" class="icon" title="Светлая / тёмная тема">◐</button>
+  </div>
+</header>
+<div class="layout">
+  <aside id="library" class="library">
+    <div class="lib-head">Библиотека<small>Галочка — глава участвует в «Повторении» и «Вперемешку»</small></div>
+    <div id="libList"></div>
+  </aside>
+  <main class="main">
+    <section class="board-wrap"><div id="board" class="board"></div></section>
+    <section class="side">
+      <div class="chapter-head"><div id="chTitle"></div><div id="chSub"></div></div>
+      <div class="modes" id="modeTabs">
+        <button data-mode="lesson" title="С комментариями и стрелками">Урок</button>
+        <button data-mode="drill" title="Та же глава без подсказок">Закрепление</button>
+      </div>
+      <div class="coach"><div class="avatar">🧑‍🏫</div><div class="bubble" id="bubble"></div></div>
+      <div id="status" class="status"></div>
+      <div id="actionArea" class="action-area"></div>
+      <div class="controls">
+        <button id="btnBack" title="Назад (←)">← Назад</button>
+        <button id="btnHint" title="Подсказка (H)">💡 Подсказка</button>
+        <button id="btnRestart" title="Начать главу заново">⟲ Заново</button>
+        <button id="btnFlip" title="Перевернуть доску (F)">⇅</button>
+        <button id="btnNext" title="Следующая глава">Дальше →</button>
+      </div>
+      <div id="moves" class="moves"></div>
+    </section>
+  </main>
+</div>
+
+<dialog id="dlgImport">
+  <h2>Импорт дебютов (PGN)</h2>
+  <h3>1. Файлы</h3>
+  <input type="file" id="impFiles" accept=".pgn,.txt" multiple>
+  <p class="note">Каждый файл станет курсом. Каждая партия в файле — главой.</p>
+  <h3>2. Ссылка на студию Lichess</h3>
+  <div class="row"><input type="url" id="impUrl" placeholder="https://lichess.org/study/abcd1234"><button id="impUrlBtn" style="flex:none">Загрузить</button></div>
+  <p class="note">Работает только для открытых студий, где автор разрешил скачивание.</p>
+  <h3>3. Вставить текст PGN</h3>
+  <input type="text" id="impName" placeholder="Название курса (необязательно)">
+  <textarea id="impText" placeholder='[Event "..."]&#10;[Orientation "white"]&#10;&#10;{ Комментарий } 1. e4 e5 2. Nf3 ( 2. Qh5 { ошибка } ) 2... Nc6 *'></textarea>
+  <p class="note">Боковой вариант на <b>вашем</b> ходу = «известная ошибка» с объяснением. Вариант на ходу соперника = другой ответ соперника. Сторона ученика — заголовок <code>[Orientation "black"]</code>.</p>
+  <div class="foot"><button id="impClose">Закрыть</button><button id="impTextBtn" class="primary">Добавить текст</button></div>
+</dialog>
+
+<dialog id="dlgSettings">
+  <h2>Настройки</h2>
+  <label>Ответы соперника в «Закреплении» и «Повторении»
+    <select id="setOpp"><option value="random">Случайная ветка из курса</option><option value="main">Только главная линия</option></select>
+  </label>
+  <label>Боковые варианты на моём ходу
+    <select id="setSide"><option value="errors">Ошибки с объяснением (как в Lichess)</option><option value="ok">Тоже верные ходы (мой репертуар)</option></select>
+  </label>
+  <label>Новых позиций в день для «Повторения»
+    <input type="number" id="setNew" min="0" max="500" step="5">
+  </label>
+  <label>Задержка ответа соперника, мс
+    <input type="number" id="setDelay" min="0" max="3000" step="100">
+  </label>
+  <h3>Данные</h3>
+  <p class="note">Курсы и прогресс хранятся в этом браузере. Сделайте резервную копию, чтобы перенести их на другой компьютер.</p>
+  <div class="row"><button id="btnExport">⬇ Экспорт данных</button><button id="btnImportData">⬆ Импорт данных</button><input type="file" id="dataFile" accept=".json" class="hidden"></div>
+  <div class="row"><button id="btnRestoreBuiltins">Вернуть встроенные курсы</button><button id="btnResetProgress" class="danger">Сбросить прогресс</button></div>
+  <div class="foot"><button id="setClose" class="primary">Готово</button></div>
+</dialog>
+
+<dialog id="dlgAsk">
+  <h2 id="askTitle"></h2>
+  <p id="askText" class="note" style="font-size:14px"></p>
+  <input type="text" id="askInput" class="hidden">
+  <textarea id="askArea" class="hidden" readonly></textarea>
+  <div class="foot"><button id="askCancel">Отмена</button><button id="askOk" class="primary">OK</button></div>
+</dialog>
+
+<div id="promo" class="promo hidden"></div>
+<div id="toast" class="toast"></div>
+
+<script type="text/plain" class="builtin-pgn" data-id="rep-1" data-name="Белые: репертуар 1.e4">
+[Event "Белые: 1.e4"]
+[StudyName "Белые: репертуар 1.e4"]
+[ChapterName "★ 01. Итальянская: 3...Bc5, план c3 и d3"]
+[Orientation "white"]
+
+{ Начинаем с захвата центра: пешка e4. } 1. e4 e5 { Нападите конём на пешку e5. } 2. Nf3 Nc6 { Слон на c4 смотрит на слабое поле f7. } 3. Bc4 Bc5 { Итальянская партия. Готовим центр пешкой c3. } 4. c3 Nf6 ( 4... d6 { Защитите e4 заранее: d3. } 5. d3 Nf6 6. O-O O-O 7. Re1 ) { Чёрные напали на e4. Защитите её пешкой d3: спокойная, надёжная система. } 5. d3 d6 ( 5... O-O { Рокируйтесь. } 6. O-O d6 7. Re1 ) ( 5... Ng4?! { Частый ход новичков: конь метит на f2. Ударьте в центр: d4! Слон c5 под боем, и атака на f2 пропадает. } 6. d4 Bd6 7. O-O O-O 8. h3 { Конь g4 должен отступить. У белых большой центр. } ) { Делайте рокировку. } 6. O-O O-O { Ладья на e1 поддержит центр. } 7. Re1 a6 { Ход a4 не даст чёрным сыграть b5 с темпом на слона. } 8. a4 Ba7 { Ход h3 запрещает связку Bg4. } 9. h3 h6 { Конь идёт по маршруту b1–d2–f1–g3. } 10. Nbd2 Re8 11. Nf1 { План белых: Ng3, Be3, иногда d4. Медленная игра, где побеждает лучший план. [%cal Gf1g3,Gc1e3,Gd3d4] } *
+
+[Event "Белые: 1.e4"]
+[StudyName "Белые: репертуар 1.e4"]
+[ChapterName "★ 02. Итальянская: защита двух коней 3...Nf6"]
+[Orientation "white"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 { Защита двух коней. Чёрные нападают на e4. Защищаем её спокойно: d3. } 4. d3 ( 4. Ng5 { Так тоже играют, но это острая теория. В нашем репертуаре — спокойный ход d3. } ) 4... Be7 ( 4... Nxe4?? { Конь бьёт пешку, но он не защищён. Бейте пешкой! } 5. dxe4 Bb4+ 6. c3 Be7 7. Nbd2 { Белые с лишней фигурой. } ) ( 4... Bc5 { Позиция из главы 01. Играем c3. } 5. c3 d6 6. O-O O-O 7. Re1 a6 8. a4 ) ( 4... h6 { Чёрные запрещают Ng5. Рокируемся. } 5. O-O d6 6. c3 g6 7. Re1 Bg7 8. Nbd2 O-O 9. Nf1 ) 5. O-O O-O { Ладья — в центр. } 6. Re1 d6 { Пешка c3 готовит d4 и даёт слону поле c2. } 7. c3 Na5 { Конь нападает на слона. Уводите его на b5: поле свободно, ведь конь ушёл с c6. } 8. Bb5 a6 { Отступите на a4: слон держит диагональ. } 9. Ba4 b5 { Слон уходит на c2, где он смотрит на королевский фланг. } 10. Bc2 c5 { Конь пойдёт по маршруту d2–f1–g3. } 11. Nbd2 { Структура как в испанской партии. План: Nf1, Ng3, d4. } *
+
+[Event "Белые: 1.e4"]
+[StudyName "Белые: репертуар 1.e4"]
+[ChapterName "★ 03. Ловушка 3...Nd4: не бейте на e5!"]
+[Orientation "white"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nd4 { Ловушка! Чёрные отдают пешку e5. Не жадничайте: разменяйте коня. } 4. Nxd4 ( 4. Nxe5? { Ошибка! После Qg5 чёрные нападают на коня и на g2: Qxg2, затем мат или выигрыш ладьи. } ) 4... exd4 { Рокируемся. } 5. O-O Bc5 ( 5... d6 { Готовим c3, чтобы вскрыть центр. } 6. c3 dxc3 7. Nxc3 Nf6 { Ферзь на b3: удар по f7 и b7 сразу. } 8. Qb3 Be6 9. Bxe6 fxe6 10. Qxe6+ { Белые выиграли пешку, король чёрных открыт. } ) { Пешка f7 защищена только королём. Бейте слоном с шахом! [%cal Gc4f7] } 6. Bxf7+ Kf8 ( 6... Kxf7 { Шах ферзём с h5: вилка на короля и слона c5. } 7. Qh5+ g6 8. Qd5+ Kg7 9. Qxc5 { Белые выиграли слона. } ) { Слон отступает, белые с лишней пешкой. Король чёрных потерял рокировку. } 7. Bb3 d6 8. d3 { Простой план: Nd2, f4, давление по линии f. } *
+
+[Event "Белые: 1.e4"]
+[StudyName "Белые: репертуар 1.e4"]
+[ChapterName "★ 03б. Мат Легаля: ловушка против 3...d6"]
+[Orientation "white"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 d6 { Пассивный ход. Развивайте коня. } 4. Nc3 Bg4 { Связка: конь f3 прикрывает ферзя. Спросите слона: h3. } 5. h3 Bh5 ( 5... Bxf3 { Бейте ферзём: у белых два слона. } 6. Qxf3 Nf6 7. Ne2 { Белым удобнее. } ) { Ловушка! Бейте на e5: связка мнимая. } 6. Nxe5 Bxd1?? ( 6... Nxe5 { Ферзь бьёт слона h5. } 7. Qxh5 Nxc4 { Шах с вилкой на короля и коня. } 8. Qb5+ c6 9. Qxc4 { Белые с лишней пешкой. } ) ( 6... dxe5 7. Qxh5 { Белые выиграли пешку. } ) { Черные взяли ферзя. Шах слоном! } 7. Bxf7+ Ke7 { Мат конём! } 8. Nd5# { Мат Легаля: три лёгкие фигуры сильнее ферзя. } *
+
+[Event "Белые: 1.e4"]
+[StudyName "Белые: репертуар 1.e4"]
+[ChapterName "04. Защита Филидора 2...d6"]
+[Orientation "white"]
+
+1. e4 e5 2. Nf3 d6 { Защита Филидора: пассивная. Сразу бейте в центр: d4. } 3. d4 exd4 ( 3... Bg4?! { Связка. Разменяйте пешки: dxe5. } 4. dxe5 Bxf3 5. Qxf3 dxe5 { Слон на c4: двойная угроза по f7. } 6. Bc4 Nf6 { Ферзь на b3 нападает и на f7, и на b7. } 7. Qb3 Qe7 8. Qxb7 Qb4+ 9. Qxb4 Bxb4+ 10. Bd2 { Лишняя пешка у белых. } ) ( 3... Nf6 { Развиваем коня. } 4. Nc3 Nbd7 { Слон на c4. } 5. Bc4 Be7 6. O-O O-O 7. Re1 c6 8. a4 { Белые свободнее, центр под контролем. } ) 4. Nxd4 Nf6 { Развиваем коня, защищаем e4. } 5. Nc3 Be7 6. Be2 O-O 7. O-O { Простая позиция: у белых больше пространства. План: f4, Be3, Qd2. } *
+
+[Event "Белые: 1.e4"]
+[StudyName "Белые: репертуар 1.e4"]
+[ChapterName "05. Русская партия 2...Nf6"]
+[Orientation "white"]
+
+1. e4 e5 2. Nf3 Nf6 { Русская партия (Петров). Бейте пешку e5. } 3. Nxe5 d6 ( 3... Nxe4? { Частая ошибка! Ферзь на e2 нападает на коня по линии e. } 4. Qe2 Qe7 ( 4... Nf6?? { Вскрытый шах! Конь с шахом нападает на ферзя. } 5. Nc6+ Be7 6. Nxd8 ) 5. Qxe4 d6 6. d4 dxe5 7. dxe5 { У белых лишняя пешка. } ) { Конь отступает. } 4. Nf3 Nxe4 { Центральный удар d4. } 5. d4 d5 6. Bd3 Be7 7. O-O Nc6 { Подрывом c4 белые атакуют центр. } 8. c4 { Главная линия. Белые давят на d5. } *
+
+[Event "Белые: 1.e4"]
+[StudyName "Белые: репертуар 1.e4"]
+[ChapterName "★ 06. Редкие ответы: 2...f6, 2...d5, 2...f5"]
+[Orientation "white"]
+
+1. e4 e5 2. Nf3 f6?! { Защита Дамиано: слабая. Жертвуйте коня на e5! } ( 2... d5?! { Гамбит слона. Берите пешку. } 3. exd5 e4 { Ферзь на e2 связывает пешку e4. } 4. Qe2 Nf6 5. d3 Be7 6. dxe4 O-O 7. Nc3 { Белые с лишней пешкой. } ) ( 2... f5?! { Латышский гамбит. Бейте на e5. } 3. Nxe5 Qf6 { Укрепите центр пешкой d4. } 4. d4 d6 5. Nc4 fxe4 6. Nc3 { Белые лучше развиты. Конь и ферзь чёрных скоро станут мишенями. } ) 3. Nxe5 fxe5 ( 3... Qe7 { Отступайте конём на f3. } 4. Nf3 Qxe4+ 5. Be2 { Белые быстрее развиваются, король чёрных открыт. } ) { Шах ферзём с h5! } 4. Qh5+ g6 ( 4... Ke7 { Берите пешку с шахом. } 5. Qxe5+ Kf7 6. Bc4+ d5 7. Bxd5+ Kg6 { Шах ферзём с g3. } 8. Qg3+ Qg5 { Берите пешку c7: у белых уже три пешки за коня и атака. } 9. Qxc7 { Король чёрных в центре доски, у белых большой перевес. } ) { Берите e5 с шахом и вилкой. } 5. Qxe5+ Qe7 6. Qxh8 Nf6 { Защитите e4 конём. } 7. Nc3 { Белые выиграли ладью. } *
+
+[Event "Белые: 1.e4"]
+[StudyName "Белые: репертуар 1.e4"]
+[ChapterName "★ 07. Сицилианская: Алапин 2.c3, 2...Nf6"]
+[Orientation "white"]
+
+1. e4 c5 { Сицилианская защита. Наша простая система: пешка c3, потом d4. } 2. c3 ( 2. Nf3 { Открытая сицилианская требует много теории. Мы играем c3. } ) 2... Nf6 { Конь нападает на e4. Гоните его: e5. } 3. e5 Nd5 { Захватываем центр. } 4. d4 cxd4 5. Nf3 Nc6 { Восстановите центр пешкой. } 6. cxd4 d6 { Слон на c4 нападает на коня d5. } 7. Bc4 Nb6 { Свяжите коня c6 слоном с b5. } 8. Bb5 dxe5 9. Nxe5 Bd7 { Разменяйте коней. } 10. Nxd7 Qxd7 11. Nc3 e6 12. O-O { Белые хорошо развиты. Слабая пешка d4 компенсируется активными фигурами. } *
+
+[Event "Белые: 1.e4"]
+[StudyName "Белые: репертуар 1.e4"]
+[ChapterName "08. Сицилианская: Алапин 2.c3, 2...d5 и 2...e6"]
+[Orientation "white"]
+
+1. e4 c5 2. c3 d5 { Берите пешку. } ( 2... e6 { Захватываем центр. } 3. d4 d5 { Разменяйте пешки: структура станет простой. } 4. exd5 exd5 5. Nf3 Nc6 { Связка слоном. } 6. Bb5 Bd6 7. dxc5 Bxc5 8. O-O Nge7 9. Nbd2 O-O 10. Nb3 { Конь блокирует изолированную пешку d5 через поле d4. } ) 3. exd5 Qxd5 { Пешка d4 — центр за белыми. } 4. d4 Nf6 5. Nf3 Bg4 ( 5... e6 6. Be2 Nc6 7. O-O cxd4 8. cxd4 Be7 9. Nc3 Qd6 10. Nb5 Qd8 11. Bf4 { Активные фигуры у белых. } ) { Слон закрывает связку. } 6. Be2 e6 7. O-O Nc6 8. Be3 cxd4 9. cxd4 Be7 10. Nc3 Qd6 { Спрашиваем слона. } 11. h3 Bh5 { Позиция равная, но играть белыми проще: центр и простой план. } 12. a3 *
+
+[Event "Белые: 1.e4"]
+[StudyName "Белые: репертуар 1.e4"]
+[ChapterName "★ 09. Французская: система с e5"]
+[Orientation "white"]
+
+1. e4 e6 { Французская защита. Захватываем центр. } 2. d4 d5 { Продвигайтесь вперёд: e5. Чёрный слон c8 станет плохим. } 3. e5 c5 { Поддержите центр пешкой c3. } 4. c3 Nc6 5. Nf3 Qb6 ( 5... Bd7 6. a3 { Готовим b4: захват пространства. } 6... Qb6 7. b4 cxd4 8. cxd4 Rc8 9. Bb2 ) { Пешка a3 готовит b4. } 6. a3 c4 ( 6... Bd7 7. b4 cxd4 8. cxd4 Rc8 9. Bb2 { Белые держат центр. } ) { Конь идёт на d2, чтобы не мешать пешкам. } 7. Nbd2 Na5 8. Rb1 Bd7 9. g3 { Слон пойдёт на h3. План белых: h4-h5 и атака на королевском фланге. } *
+
+[Event "Белые: 1.e4"]
+[StudyName "Белые: репертуар 1.e4"]
+[ChapterName "★ 10. Каро-Канн: система с e5"]
+[Orientation "white"]
+
+1. e4 c6 { Каро-Канн. Захватываем центр. } 2. d4 d5 { Продвигайтесь: e5. } 3. e5 Bf5 ( 3... c5 { Бейте пешку. } 4. dxc5 Nc6 5. Bb5 e6 6. Be3 { Белые держат лишнюю пешку на c5. } ) { Развивайте коня. } 4. Nf3 e6 { Скромно и надёжно: слон на e2. } 5. Be2 c5 ( 5... Nd7 6. O-O h6 7. Nbd2 Ne7 8. Nb3 { Конь смотрит на c5. Белые свободнее. } ) 6. Be3 Nd7 7. O-O Ne7 { Подрыв c4 — атака на центр чёрных. } 8. c4 { Система Шорта. Белые активнее. } *
+
+[Event "Белые: 1.e4"]
+[StudyName "Белые: репертуар 1.e4"]
+[ChapterName "★ 11. Скандинавская 1...d5 2.exd5 Qxd5"]
+[Orientation "white"]
+
+1. e4 d5 { Скандинавская. Берите пешку. } 2. exd5 Qxd5 { Нападите конём на ферзя: развитие с темпом. } 3. Nc3 Qa5 ( 3... Qd6 4. d4 Nf6 5. Nf3 a6 6. g3 { Слон пойдёт на g2. } ) ( 3... Qd8 4. d4 Nf6 5. Nf3 Bg4 6. h3 Bh5 7. g4 Bg6 8. Ne5 ) { Центр: d4. } 4. d4 Nf6 5. Nf3 c6 { Слон на c4. } 6. Bc4 Bf5 { Слон d2 убирает связку с коня c3. } 7. Bd2 e6 8. Qe2 Bb4 { Длинная рокировка: король уходит, ладья встаёт на d1. } 9. O-O-O Nbd7 10. a3 { Белые атакуют, у них лучшее развитие. } *
+
+[Event "Белые: 1.e4"]
+[StudyName "Белые: репертуар 1.e4"]
+[ChapterName "12. Скандинавская 1...d5 2.exd5 Nf6"]
+[Orientation "white"]
+
+1. e4 d5 2. exd5 Nf6 { Чёрные не берут ферзём. Займите центр: d4. } 3. d4 Nxd5 ( 3... Bg4 { Гоните слона: f3. } 4. f3 Bf5 5. c4 { Держим лишнюю пешку d5. } ) 4. Nf3 Bg4 5. Be2 e6 6. O-O Nc6 { Конь отступит с темпом. } 7. c4 Nb6 8. Nc3 { У белых сильный центр. } *
+
+[Event "Белые: 1.e4"]
+[StudyName "Белые: репертуар 1.e4"]
+[ChapterName "13. Защита Пирца и Современная"]
+[Orientation "white"]
+
+1. e4 d6 ( 1... g6 { Современная защита. Займите центр. } 2. d4 Bg7 3. Nc3 d6 4. Be3 Nf6 5. Qd2 c6 6. f3 ) { Займите центр обеими пешками. } 2. d4 Nf6 3. Nc3 g6 { План белых: Be3, Qd2, f3 и длинная рокировка. } 4. Be3 Bg7 5. Qd2 c6 6. f3 b5 7. Nge2 Nbd7 { Слон на h6 меняет главного защитника чёрного короля. } 8. Bh6 { Дальше: h4-h5 и атака. } *
+
+[Event "Белые: 1.e4"]
+[StudyName "Белые: репертуар 1.e4"]
+[ChapterName "14. Защита Алехина 1...Nf6"]
+[Orientation "white"]
+
+1. e4 Nf6 { Защита Алехина. Гоните коня: e5. } 2. e5 Nd5 3. d4 d6 { Развивайтесь: конь f3. } 4. Nf3 Bg4 ( 4... dxe5 5. Nxe5 g6 6. Bc4 c6 7. O-O Bg7 8. Re1 { Белые активнее. } ) 5. Be2 e6 6. O-O Be7 { Пешка c4 гонит коня. } 7. c4 Nb6 8. h3 Bh5 9. Nc3 O-O 10. Be3 { Большой центр и пространство у белых. } *
+
+[Event "Белые: 1.e4"]
+[StudyName "Белые: репертуар 1.e4"]
+[ChapterName "15. Редкие: 1...Nc6 и 1...b6"]
+[Orientation "white"]
+
+1. e4 Nc6 ( 1... b6 { Защита Оуэна. Займите центр. } 2. d4 Bb7 { Защитите e4 слоном. } 3. Bd3 e6 4. Nf3 c5 5. c3 Nf6 6. Qe2 { Пешка e4 надёжно защищена. } ) { Развивайте коня. } 2. Nf3 d6 ( 2... e5 { Позиция из итальянской. } 3. Bc4 ) 3. d4 Nf6 4. Nc3 Bg4 5. Be2 e6 6. O-O Be7 7. h3 Bh5 { Гоните слона пешкой g4. } 8. g4 Bg6 { Теперь пешка d5 гонит коня. } 9. d5 Ne5 { Конь уходит в центр, на сильное поле d4. } 10. Nd4 { У белых простор и инициатива. } *
+</script>
+<script type="text/plain" class="builtin-pgn" data-id="rep-2" data-name="Чёрные: против 1.e4 (1...e5)">
+[Event "Чёрные против 1.e4"]
+[StudyName "Чёрные: против 1.e4 (1...e5)"]
+[ChapterName "★ 01. Итальянская: 3...Bc5, спокойные системы"]
+[Orientation "black"]
+
+1. e4 { Отвечаем симметрично: e5. Пешка держит центр. } 1... e5 2. Nf3 { Защитите пешку e5 конём. } 2... Nc6 ( 2... f6?? { Ошибка: после Nxe5! fxe5 Qh5+ белые выигрывают. } ) 3. Bc4 { Итальянская партия. Слон на c5 — симметрично и активно. } 3... Bc5 4. c3 ( 4. O-O { Развиваем коня. } 4... Nf6 5. d3 d6 6. c3 O-O ) ( 4. d3 4... Nf6 5. O-O d6 6. c3 O-O ) ( 4. Nc3 { Четыре коня с итальянским слоном. Развиваем коня. } 4... Nf6 5. d3 d6 6. O-O O-O ) 4... Nf6 { Нападаем на e4. } 5. d3 { Белые защитили e4. Укрепите центр: d6. } 5... d6 6. O-O O-O 7. Re1 a6 { Ход a6 даёт слону поле a7, где его не разменяют конём. } 8. Bb3 Ba7 9. h3 h6 { Запрещаем Bg5 и Ng5. } 10. Nbd2 Re8 11. Nf1 { Размените слонов: Be6. } 11... Be6 { Позиция равна. План: d5 или Qd7 и Rad8. } *
+
+[Event "Чёрные против 1.e4"]
+[StudyName "Чёрные: против 1.e4 (1...e5)"]
+[ChapterName "02. Итальянская: белые играют 5.d4"]
+[Orientation "black"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. c3 Nf6 5. d4 { Белые вскрывают центр. Бейте пешку. } 5... exd4 6. e5 ( 6. cxd4 { Шах слоном! } 6... Bb4+ 7. Bd2 { Размените слонов. } 7... Bxd2+ 8. Nbxd2 { Удар в центре: d5! } 8... d5 9. exd5 Nxd5 10. Qb3 { Защитите коня d5 вторым конём. } 10... Nce7 11. O-O O-O 12. Rfe1 c6 { Конь на d5 стоит прочно. Позиция равная. } ) { Конь атакован. Контрудар: d5! } 6... d5 7. Bb5 { Прыгайте конём в центр. } 7... Ne4 8. cxd4 Bb6 9. Nc3 O-O 10. Be3 Bg4 { Чёрные активны, позиция равная. } *
+
+[Event "Чёрные против 1.e4"]
+[StudyName "Чёрные: против 1.e4 (1...e5)"]
+[ChapterName "03. Гамбит Эванса 4.b4"]
+[Orientation "black"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. b4 { Гамбит Эванса. Берите пешку. } 4... Bxb4 5. c3 { Отступайте на a5: слон держит связку по диагонали a5–e1. } 5... Ba5 6. d4 { Укрепите центр: d6. } 6... d6 7. O-O ( 7. Qb3 { Защитите f7 ферзём. } 7... Qd7 8. dxe5 Bb6 { Чёрные удержат материал. } ) 7... Bb6 { Слон уходит из-под удара. } 8. dxe5 dxe5 9. Qxd8+ Nxd8 10. Nxe5 Be6 { Защита Ласкера: эндшпиль удобнее для чёрных. } *
+
+[Event "Чёрные против 1.e4"]
+[StudyName "Чёрные: против 1.e4 (1...e5)"]
+[ChapterName "★ 04. Наскок 4.Ng5: конь висит!"]
+[Orientation "black"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Bc5 4. Ng5 { Белые грозят Nxf7. Но конь g5 никем не защищён, а ферзь d8 его видит. Бейте! [%cal Gd8g5] } 4... Qxg5 ( 4... Nf6? { Так конь g5 остаётся жив, и белые бьют на f7 с вилкой. Берите коня ферзём! } ) 5. O-O ( 5. d4 { Слон c5 атакован, но ферзь бьёт g2 и метит на ладью h1. } 5... Qxg2 6. dxc5 Qxh1+ 7. Bf1 Qxe4+ { Чёрные выиграли ладью и пешки. } ) ( 5. Bxf7+ { Бейте королём. } 5... Kxf7 6. O-O Qg6 { У чёрных лишняя фигура. } ) { Ферзь отступает на h4 и держит центр. } 5... Qh4 6. d3 Nf6 { Чёрные с лишним конём. Дальше: рокировка и спокойное развитие. } *
+
+[Event "Чёрные против 1.e4"]
+[StudyName "Чёрные: против 1.e4 (1...e5)"]
+[ChapterName "★ 05. Ранний ферзь 2.Qh5 и детский мат"]
+[Orientation "black"]
+
+1. e4 e5 2. Qh5 { Ферзь нападает на e5 и f7. Защитите пешку конём. } 2... Nc6 ( 2... g6?? { Ошибка: Qxe5+ с вилкой на короля и ладью h8. } ) 3. Bc4 { Угроза мата на f7! Перекройте ферзя: g6. } 3... g6 ( 3... Nf6?? { Детский мат: Qxf7#! } ) 4. Qf3 { Снова угроза мата на f7. Закройте линию конём. } 4... Nf6 ( 4... d6?? { Мат: Qxf7#. } ) 5. Ne2 ( 5. Qb3 { Опять угроза f7. Но есть удар сильнее защиты: конь d4 нападает на ферзя и на c2! } 5... Nd4 6. Bxf7+ ( 6. Qc3 { Бейте пешку e4. } 6... Nxe4 { Ферзь атакован, вилка на c2 остаётся. Чёрные выигрывают. } ) 6... Ke7 7. Qc4 b5 8. Qd3 Kxf7 { Чёрные выиграли фигуру. } ) { Слон — на длинную диагональ. } 5... Bg7 6. Nbc3 d6 7. d3 { Рокируйтесь: король в безопасности. } 7... O-O 8. h3 Be6 { Размен слона c4. У чёрных отличная позиция: ферзь белых вышел зря. } *
+
+[Event "Чёрные против 1.e4"]
+[StudyName "Чёрные: против 1.e4 (1...e5)"]
+[ChapterName "★ 06. Шотландская партия 3.d4"]
+[Orientation "black"]
+
+1. e4 e5 2. Nf3 Nc6 3. d4 { Шотландская. Бейте пешку. } 3... exd4 4. Nxd4 { Развиваем коня, нападаем на e4. } 4... Nf6 5. Nxc6 ( 5. Nc3 { Связка слоном. } 5... Bb4 6. Nxc6 bxc6 7. Bd3 d5 8. exd5 cxd5 9. O-O O-O 10. Bg5 c6 { Крепкий центр у чёрных. } ) 5... bxc6 { Пешка лишь укрепит центр. } 6. e5 { Конь атакован. Ферзь на e7: связка по линии e. } 6... Qe7 7. Qe2 Nd5 8. c4 { Связка слоном на a6. } 8... Ba6 { Конь d5 держится связкой. Острая равная игра. } *
+
+[Event "Чёрные против 1.e4"]
+[StudyName "Чёрные: против 1.e4 (1...e5)"]
+[ChapterName "07. Шотландский гамбит 4.Bc4 и гамбит 4.c3"]
+[Orientation "black"]
+
+1. e4 e5 2. Nf3 Nc6 3. d4 exd4 4. Bc4 ( 4. c3 { Удар в центре: d5. } 4... d5 5. exd5 Qxd5 6. cxd4 Bg4 7. Be2 Bb4+ 8. Nc3 Bxf3 9. Bxf3 Qc4 { Ферзь мешает белым рокироваться. } ) { Развивайте коня. } 4... Nf6 5. e5 ( 5. O-O { Берите пешку. } 5... Nxe4 6. Re1 d5 7. Bxd5 Qxd5 8. Nc3 Qa5 9. Nxe4 Be6 { Чёрные с лишней пешкой. } ) { Удар в центре: d5. } 5... d5 6. Bb5 Ne4 7. Nxd4 Bd7 8. Bxc6 bxc6 9. O-O Bc5 { Сильный конь e4 и пара слонов. } *
+
+[Event "Чёрные против 1.e4"]
+[StudyName "Чёрные: против 1.e4 (1...e5)"]
+[ChapterName "08. Испанская партия 3.Bb5"]
+[Orientation "black"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 { Испанская. Спросите слона: a6. } 3... a6 4. Ba4 ( 4. Bxc6 { Разменный вариант: см. главу 09. } 4... dxc6 ) 4... Nf6 5. O-O ( 5. d3 5... b5 6. Bb3 Be7 7. O-O O-O 8. c3 d6 ) ( 5. Nc3 5... b5 6. Bb3 Be7 7. d3 d6 ) { Развиваем слона на e7 и рокируемся. } 5... Be7 6. Re1 { Белые защитили e4. Гоните слона: b5. } 6... b5 7. Bb3 d6 8. c3 O-O 9. h3 { Конь нападает на слона. } 9... Na5 10. Bc2 c5 11. d4 Qc7 { Система Чигорина: надёжный центр. } *
+
+[Event "Чёрные против 1.e4"]
+[StudyName "Чёрные: против 1.e4 (1...e5)"]
+[ChapterName "09. Испанская: разменный вариант 4.Bxc6"]
+[Orientation "black"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Bxc6 { Бейте пешкой d: откроется слон c8. } 4... dxc6 5. O-O ( 5. Nxe5?! { Ферзь d4: вилка на коня и e4. } 5... Qd4 6. Nf3 Qxe4+ 7. Qe2 Qxe2+ 8. Kxe2 { Материал равный, у чёрных два слона. } ) { Защитите e5 пешкой f6. } 5... f6 6. d4 exd4 7. Nxd4 c5 8. Nb3 Qxd1 9. Rxd1 Bg4 10. f3 Be6 { Два слона компенсируют сдвоенные пешки. } *
+
+[Event "Чёрные против 1.e4"]
+[StudyName "Чёрные: против 1.e4 (1...e5)"]
+[ChapterName "★ 10. Четыре коня 3.Nc3"]
+[Orientation "black"]
+
+1. e4 e5 2. Nf3 Nc6 3. Nc3 { Развиваем коня: четыре коня. } 3... Nf6 4. Bb5 ( 4. d4 { Бейте. } 4... exd4 5. Nxd4 Bb4 6. Nxc6 bxc6 7. Bd3 d5 8. exd5 cxd5 9. O-O O-O 10. Bg5 c6 ) ( 4. Bc4 { Ловкий трюк: бейте на e4! } 4... Nxe4 5. Nxe4 d5 { Вилка: пешка нападает на слона и коня. } 6. Bd3 dxe4 7. Bxe4 Bd6 8. O-O O-O { Чёрные свободно развиты. } ) ( 4. g3 4... d5 5. exd5 Nxd5 6. Bg2 Nxc3 7. bxc3 Bd6 ) { Симметрично: слон на b4. } 4... Bb4 5. O-O O-O 6. d3 d6 7. Bg5 Bxc3 8. bxc3 Qe7 { Равная позиция. План: Nd8–e6. } *
+
+[Event "Чёрные против 1.e4"]
+[StudyName "Чёрные: против 1.e4 (1...e5)"]
+[ChapterName "11. Королевский гамбит 2.f4"]
+[Orientation "black"]
+
+1. e4 e5 2. f4 { Королевский гамбит. Не берём: слон на c5 мешает белому королю. } 2... Bc5 3. Nf3 ( 3. fxe5?? { Шах ферзём с h4! } 3... Qh4+ 4. g3 Qxe4+ 5. Qe2 Qxh1 { Вилка: чёрные выиграли ладью. } ) ( 3. Nc3 { Сначала d6: укрепите e5. Ход Nf6 здесь ошибка — после fxe5 конь под ударом. } 3... d6 4. Nf3 Nf6 5. Bc4 O-O 6. d3 Nbd7 ) { Укрепите e5: d6. } 3... d6 4. c3 Nf6 5. d4 exd4 6. cxd4 Bb6 7. Nc3 O-O { Чёрные быстрее развиты. Центр белых — мишень. } *
+
+[Event "Чёрные против 1.e4"]
+[StudyName "Чёрные: против 1.e4 (1...e5)"]
+[ChapterName "12. Венская партия 2.Nc3"]
+[Orientation "black"]
+
+1. e4 e5 2. Nc3 { Развиваем коня. } 2... Nf6 3. f4 ( 3. Bc4 3... Nc6 4. d3 Bb4 5. Bg5 h6 6. Bxf6 Bxc3+ 7. bxc3 Qxf6 ) ( 3. g3 3... d5 4. exd5 Nxd5 5. Bg2 Nxc3 6. bxc3 Bd6 ) { Удар в центре: d5! } 3... d5 4. fxe5 Nxe4 5. Nf3 Be7 6. d4 O-O 7. Bd3 f5 { Конь e4 стоит крепко. } *
+
+[Event "Чёрные против 1.e4"]
+[StudyName "Чёрные: против 1.e4 (1...e5)"]
+[ChapterName "13. Центральный дебют и датский гамбит"]
+[Orientation "black"]
+
+1. e4 e5 2. d4 exd4 3. Qxd4 ( 3. c3 { Датский гамбит. Отвечайте d5. } 3... d5 4. exd5 Qxd5 5. cxd4 Nc6 6. Nf3 Bg4 7. Be2 Bb4+ 8. Nc3 Bxf3 9. Bxf3 Qc4 ) ( 3. Nf3 3... Nc6 4. Nxd4 Nf6 ) { Нападите на ферзя конём. } 3... Nc6 4. Qe3 Nf6 5. Nc3 Bb4 6. Bd2 O-O 7. O-O-O Re8 { Давление на e4. Чёрные удобно развиты. } *
+
+[Event "Чёрные против 1.e4"]
+[StudyName "Чёрные: против 1.e4 (1...e5)"]
+[ChapterName "★ 14. Дебют слона 2.Bc4"]
+[Orientation "black"]
+
+1. e4 e5 2. Bc4 { Развиваем коня, нападаем на e4. } 2... Nf6 3. d3 ( 3. d4 3... exd4 4. Nf3 Nxe4 5. Qxd4 Nf6 6. Bg5 { Конь с темпом нападает на ферзя. } 6... Nc6 7. Qe3+ Qe7 ) ( 3. Qf3 { Конь f6 закрывает ферзю путь к f7. Захватите пространство: c6 и b5. } 3... c6 4. Nc3 b5 5. Bb3 b4 6. Na4 d5 ) { План: c6 и d5. } 3... c6 4. Nf3 d5 5. Bb3 Bd6 6. exd5 ( 6. Nc3 6... h6 7. O-O O-O ) 6... cxd5 7. Bg5 Be6 { Сильный центр у чёрных. } *
+</script>
+<script type="text/plain" class="builtin-pgn" data-id="rep-3" data-name="Чёрные: против 1.d4, 1.c4, 1.Nf3">
+[Event "Чёрные против 1.d4"]
+[StudyName "Чёрные: против 1.d4, 1.c4, 1.Nf3"]
+[ChapterName "★ 01. Ферзевый гамбит: 4.Bg5, система Тартаковера"]
+[Orientation "black"]
+
+1. d4 { Отвечаем симметрично: d5. } 1... d5 2. c4 { Ферзевый гамбит. Держим центр пешкой e6. } 2... e6 3. Nc3 Nf6 4. Bg5 ( 4. Bf4 4... Be7 5. e3 O-O 6. Nf3 c5 ) { Развивайте слона на e7, снимая связку. } 4... Be7 5. e3 O-O 6. Nf3 ( 6. Rc1 6... h6 7. Bh4 b6 ) 6... h6 7. Bh4 { Система Тартаковера: b6 и Bb7. } 7... b6 8. cxd5 ( 8. Be2 8... Bb7 9. Bxf6 Bxf6 10. cxd5 exd5 11. b4 c6 ) 8... Nxd5 9. Bxe7 Qxe7 10. Nxd5 exd5 11. Rc1 Be6 { Надёжная позиция. План: c5. } *
+
+[Event "Чёрные против 1.d4"]
+[StudyName "Чёрные: против 1.d4, 1.c4, 1.Nf3"]
+[ChapterName "★ 02. Ловушка: капкан в ферзевом гамбите"]
+[Orientation "black"]
+
+1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. Bg5 { Другой порядок ходов: конь на d7. } 4... Nbd7 5. cxd5 exd5 6. Nxd5? ( 6. e3 6... c6 7. Bd3 Be7 8. Qc2 O-O ) { Ловушка! Бейте коня, не бойтесь за ферзя. } 6... Nxd5 7. Bxd8 { Шах слоном! } 7... Bb4+ 8. Qd2 Bxd2+ 9. Kxd2 Kxd8 { Чёрные выиграли фигуру. } *
+
+[Event "Чёрные против 1.d4"]
+[StudyName "Чёрные: против 1.d4, 1.c4, 1.Nf3"]
+[ChapterName "03. Разменный вариант 4.cxd5"]
+[Orientation "black"]
+
+1. d4 d5 2. c4 e6 3. Nc3 Nf6 4. cxd5 { Бейте пешкой. } 4... exd5 5. Bg5 c6 6. e3 Be7 7. Bd3 Nbd7 8. Qc2 O-O 9. Nf3 Re8 10. O-O Nf8 { Конь пойдёт на g6 или e6. Крепкая позиция. } *
+
+[Event "Чёрные против 1.d4"]
+[StudyName "Чёрные: против 1.d4, 1.c4, 1.Nf3"]
+[ChapterName "04. 3.Nf3 и система с 5.Bf4"]
+[Orientation "black"]
+
+1. d4 d5 2. c4 e6 3. Nf3 Nf6 4. Nc3 ( 4. Bg5 4... h6 5. Bh4 Be7 6. e3 O-O 7. Nc3 b6 ) 4... Be7 5. Bf4 O-O 6. e3 { Удар по центру: c5. } 6... c5 7. dxc5 Bxc5 8. a3 Nc6 9. Qc2 Qa5 10. O-O-O Be7 { Острая равная позиция. } *
+
+[Event "Чёрные против 1.d4"]
+[StudyName "Чёрные: против 1.d4, 1.c4, 1.Nf3"]
+[ChapterName "05. Каталонское начало 4.g3"]
+[Orientation "black"]
+
+1. d4 d5 2. c4 e6 3. Nf3 Nf6 4. g3 { Каталонское начало. Развиваем слона. } 4... Be7 5. Bg2 O-O 6. O-O { Берите пешку c4. } 6... dxc4 7. Qc2 a6 8. Qxc4 b5 9. Qc2 Bb7 10. Bd2 Be4 { Слон гонит ферзя. Чёрные свободно развиты. } *
+
+[Event "Чёрные против 1.d4"]
+[StudyName "Чёрные: против 1.d4, 1.c4, 1.Nf3"]
+[ChapterName "★ 06. Лондонская система"]
+[Orientation "black"]
+
+1. d4 d5 2. Bf4 ( 2. Nf3 2... Nf6 3. Bf4 e6 4. e3 c5 5. c3 Nc6 6. Nbd2 Bd6 7. Bg3 O-O 8. Bd3 b6 ) { Лондонская система. Развиваем коня. } 2... Nf6 3. e3 { Удар c5 по центру. } 3... c5 4. c3 Nc6 5. Nd2 e6 6. Ngf3 Bd6 { Предложите размен слонов. } 7. Bg3 O-O 8. Bd3 b6 { Слон пойдёт на b7 или a6. Равная игра. } *
+
+[Event "Чёрные против 1.d4"]
+[StudyName "Чёрные: против 1.d4, 1.c4, 1.Nf3"]
+[ChapterName "07. Система Колле и Цукерторта"]
+[Orientation "black"]
+
+1. d4 d5 2. Nf3 Nf6 3. e3 e6 4. Bd3 c5 5. c3 ( 5. b3 { Система Цукерторта. } 5... Nc6 6. O-O Bd6 7. Bb2 O-O 8. Nbd2 b6 ) 5... Nc6 6. Nbd2 Bd6 7. O-O O-O 8. dxc5 Bxc5 9. e4 Qc7 { Чёрные хорошо развиты, центр под контролем. } *
+
+[Event "Чёрные против 1.d4"]
+[StudyName "Чёрные: против 1.d4, 1.c4, 1.Nf3"]
+[ChapterName "08. 2.Nc3: Вересов и Йобава"]
+[Orientation "black"]
+
+1. d4 d5 2. Nc3 Nf6 3. Bg5 ( 3. Bf4 3... a6 4. e3 e6 5. Nf3 c5 ) 3... Nbd7 4. Nf3 ( 4. f3 4... c6 5. e4 dxe4 6. fxe4 e5 ) 4... h6 5. Bh4 e6 6. e3 Be7 7. Bd3 c5 { Удар по центру. Равная позиция. } *
+
+[Event "Чёрные против 1.d4"]
+[StudyName "Чёрные: против 1.d4, 1.c4, 1.Nf3"]
+[ChapterName "09. Гамбит Блэкмара — Димера 2.e4"]
+[Orientation "black"]
+
+1. d4 d5 2. e4 { Гамбит. Берите пешку. } 2... dxe4 3. Nc3 ( 3. f3 { Контрудар e5! } 3... e5 4. dxe5 Qxd1+ 5. Kxd1 Nc6 ) 3... Nf6 4. f3 ( 4. Bg5 4... Bf5 5. f3 { Не берите на f3: развивайте коня. } 5... Nbd7 6. g4 Bg6 7. Qe2 c6 ) 4... exf3 5. Nxf3 e6 6. Bd3 Be7 7. O-O O-O 8. Qe1 { Белые хотят Qh4. Конь на c6 и затем b4 разменяет опасного слона d3. } 8... Nc6 9. Bg5 h6 10. Be3 Nb4 { Лишняя пешка у чёрных, атака белых гаснет. } *
+
+[Event "Чёрные против 1.d4"]
+[StudyName "Чёрные: против 1.d4, 1.c4, 1.Nf3"]
+[ChapterName "10. Дебют Рети 1.Nf3"]
+[Orientation "black"]
+
+1. Nf3 d5 2. g3 ( 2. c4 2... e6 3. g3 Nf6 4. Bg2 Be7 5. O-O O-O 6. b3 c5 ) ( 2. d4 2... Nf6 3. e3 e6 ) 2... Nf6 3. Bg2 e6 4. O-O Be7 5. d3 O-O 6. Nbd2 c5 7. e4 Nc6 { Крепкий центр у чёрных. } *
+
+[Event "Чёрные против 1.d4"]
+[StudyName "Чёрные: против 1.d4, 1.c4, 1.Nf3"]
+[ChapterName "11. Английское начало 1.c4"]
+[Orientation "black"]
+
+1. c4 e5 2. Nc3 ( 2. g3 2... Nf6 3. Bg2 d5 4. cxd5 Nxd5 5. Nc3 Nb6 ) 2... Nf6 3. Nf3 Nc6 4. g3 d5 5. cxd5 Nxd5 6. Bg2 Nb6 7. O-O Be7 8. d3 O-O { Сицилианская наоборот: у чёрных хороший центр. } *
+</script>
+<script>
+/* chess.js 0.10.3 — (c) Jeff Hlywa, лицензия BSD-2-Clause */
+/**
+ * Minified by jsDelivr using Terser v5.39.0.
+ * Original file: /npm/chess.js@0.10.3/chess.js
+ *
+ * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
+ */
+/* @license
+ * Copyright (c) 2018, Jeff Hlywa (jhlywa@gmail.com)
+ * Released under the BSD license
+ * https://github.com/jhlywa/chess.js/blob/master/LICENSE
+ */
+var Chess=function(r){var e="b",n="w",t=-1,o="p",i="b",f="k",u="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",a=["1-0","0-1","1/2-1/2","*"],l={b:[16,32,17,15],w:[-16,-32,-17,-15]},s={n:[-18,-33,-31,-14,18,33,31,14],b:[-17,-15,17,15],r:[-16,1,16,-1],q:[-17,-16,-15,1,17,16,15,-1],k:[-17,-16,-15,1,17,16,15,-1]},p=[20,0,0,0,0,0,0,24,0,0,0,0,0,0,20,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,24,24,24,24,24,24,56,0,56,24,24,24,24,24,24,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,20,0,0,0,0,0,0,24,0,0,0,0,0,0,20],c=[17,0,0,0,0,0,0,16,0,0,0,0,0,0,15,0,0,17,0,0,0,0,0,16,0,0,0,0,0,15,0,0,0,0,17,0,0,0,0,16,0,0,0,0,15,0,0,0,0,0,0,17,0,0,0,16,0,0,0,15,0,0,0,0,0,0,0,0,17,0,0,16,0,0,15,0,0,0,0,0,0,0,0,0,0,17,0,16,0,15,0,0,0,0,0,0,0,0,0,0,0,0,17,16,15,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,-15,-16,-17,0,0,0,0,0,0,0,0,0,0,0,0,-15,0,-16,0,-17,0,0,0,0,0,0,0,0,0,0,-15,0,0,-16,0,0,-17,0,0,0,0,0,0,0,0,-15,0,0,0,-16,0,0,0,-17,0,0,0,0,0,0,-15,0,0,0,0,-16,0,0,0,0,-17,0,0,0,0,-15,0,0,0,0,0,-16,0,0,0,0,0,-17,0,0,-15,0,0,0,0,0,0,-16,0,0,0,0,0,0,-17],v={p:0,n:1,b:2,r:3,q:4,k:5},g={NORMAL:"n",CAPTURE:"c",BIG_PAWN:"b",EP_CAPTURE:"e",PROMOTION:"p",KSIDE_CASTLE:"k",QSIDE_CASTLE:"q"},h={NORMAL:1,CAPTURE:2,BIG_PAWN:4,EP_CAPTURE:8,PROMOTION:16,KSIDE_CASTLE:32,QSIDE_CASTLE:64},E={a8:0,b8:1,c8:2,d8:3,e8:4,f8:5,g8:6,h8:7,a7:16,b7:17,c7:18,d7:19,e7:20,f7:21,g7:22,h7:23,a6:32,b6:33,c6:34,d6:35,e6:36,f6:37,g6:38,h6:39,a5:48,b5:49,c5:50,d5:51,e5:52,f5:53,g5:54,h5:55,a4:64,b4:65,c4:66,d4:67,e4:68,f4:69,g4:70,h4:71,a3:80,b3:81,c3:82,d3:83,e3:84,f3:85,g3:86,h3:87,a2:96,b2:97,c2:98,d2:99,e2:100,f2:101,g2:102,h2:103,a1:112,b1:113,c1:114,d1:115,e1:116,f1:117,g1:118,h1:119},d={w:[{square:E.a1,flag:h.QSIDE_CASTLE},{square:E.h1,flag:h.KSIDE_CASTLE}],b:[{square:E.a8,flag:h.QSIDE_CASTLE},{square:E.h8,flag:h.KSIDE_CASTLE}]},b=new Array(128),_={w:t,b:t},A=n,S={w:0,b:0},m=t,y=0,C=1,T=[],I={};function P(r){void 0===r&&(r=!1),b=new Array(128),_={w:t,b:t},A=n,S={w:0,b:0},m=t,y=0,C=1,T=[],r||(I={}),q(N())}function w(){L(u)}function L(r,o){void 0===o&&(o=!1);var i=r.split(/\s+/),f=i[0],u=0;if(!R(r).valid)return!1;P(o);for(var a=0;a<f.length;a++){var l=f.charAt(a);if("/"===l)u+=8;else if(-1!=="0123456789".indexOf(l))u+=parseInt(l,10);else{var s=l<"a"?n:e;D({type:l.toLowerCase(),color:s},X(u)),u++}}return A=i[1],i[2].indexOf("K")>-1&&(S.w|=h.KSIDE_CASTLE),i[2].indexOf("Q")>-1&&(S.w|=h.QSIDE_CASTLE),i[2].indexOf("k")>-1&&(S.b|=h.KSIDE_CASTLE),i[2].indexOf("q")>-1&&(S.b|=h.QSIDE_CASTLE),m="-"===i[3]?t:E[i[3]],y=parseInt(i[4],10),C=parseInt(i[5],10),q(N()),!0}function R(r){var e="No errors.",n="FEN string must contain six space-delimited fields.",t="6th field (move number) must be a positive integer.",o="5th field (half move counter) must be a non-negative integer.",i="4th field (en-passant square) is invalid.",f="3rd field (castling availability) is invalid.",u="2nd field (side to move) is invalid.",a="1st field (piece positions) does not contain 8 '/'-delimited rows.",l="1st field (piece positions) is invalid [consecutive numbers].",s="1st field (piece positions) is invalid [invalid piece].",p="1st field (piece positions) is invalid [row too large].",c="Illegal en-passant square",v=r.split(/\s+/);if(6!==v.length)return{valid:!1,error_number:1,error:n};if(isNaN(v[5])||parseInt(v[5],10)<=0)return{valid:!1,error_number:2,error:t};if(isNaN(v[4])||parseInt(v[4],10)<0)return{valid:!1,error_number:3,error:o};if(!/^(-|[abcdefgh][36])$/.test(v[3]))return{valid:!1,error_number:4,error:i};if(!/^(KQ?k?q?|Qk?q?|kq?|q|-)$/.test(v[2]))return{valid:!1,error_number:5,error:f};if(!/^(w|b)$/.test(v[1]))return{valid:!1,error_number:6,error:u};var g=v[0].split("/");if(8!==g.length)return{valid:!1,error_number:7,error:a};for(var h=0;h<g.length;h++){for(var E=0,d=!1,b=0;b<g[h].length;b++)if(isNaN(g[h][b])){if(!/^[prnbqkPRNBQK]$/.test(g[h][b]))return{valid:!1,error_number:9,error:s};E+=1,d=!1}else{if(d)return{valid:!1,error_number:8,error:l};E+=parseInt(g[h][b],10),d=!0}if(8!==E)return{valid:!1,error_number:10,error:p}}return"3"==v[3][1]&&"w"==v[1]||"6"==v[3][1]&&"b"==v[1]?{valid:!1,error_number:11,error:c}:{valid:!0,error_number:0,error:e}}function N(){for(var r=0,o="",i=E.a8;i<=E.h1;i++){if(null==b[i])r++;else{r>0&&(o+=r,r=0);var f=b[i].color,u=b[i].type;o+=f===n?u.toUpperCase():u.toLowerCase()}i+1&136&&(r>0&&(o+=r),i!==E.h1&&(o+="/"),r=0,i+=8)}var a="";S[n]&h.KSIDE_CASTLE&&(a+="K"),S[n]&h.QSIDE_CASTLE&&(a+="Q"),S[e]&h.KSIDE_CASTLE&&(a+="k"),S[e]&h.QSIDE_CASTLE&&(a+="q"),a=a||"-";var l=m===t?"-":X(m);return[o,A,a,l,y,C].join(" ")}function O(r){for(var e=0;e<r.length;e+=2)"string"==typeof r[e]&&"string"==typeof r[e+1]&&(I[r[e]]=r[e+1]);return I}function q(r){T.length>0||(r!==u?(I.SetUp="1",I.FEN=r):(delete I.SetUp,delete I.FEN))}function k(r){var e=b[E[r]];return e?{type:e.type,color:e.color}:null}function D(r,e){if(!("type"in r)||!("color"in r))return!1;if(-1==="pnbrqkPNBRQK".indexOf(r.type.toLowerCase()))return!1;if(!(e in E))return!1;var n=E[e];return(r.type!=f||_[r.color]==t||_[r.color]==n)&&(b[n]={type:r.type,color:r.color},r.type===f&&(_[r.color]=n),q(N()),!0)}function K(r,e,n,t,i){var f={color:A,from:e,to:n,flags:t,piece:r[e].type};return i&&(f.flags|=h.PROMOTION,f.promotion=i),r[n]?f.captured=r[n].type:t&h.EP_CAPTURE&&(f.captured=o),f}function Q(r){function e(r,e,n,t,f){if(r[n].type!==o||0!==J(t)&&7!==J(t))e.push(K(r,n,t,f));else for(var u=["q","r",i,"n"],a=0,l=u.length;a<l;a++)e.push(K(r,n,t,f,u[a]))}var n=[],t=A,f=Y(t),u={b:1,w:6},a=E.a8,p=E.h1,c=!1,v=void 0===r||!("legal"in r)||r.legal;if(void 0!==r&&"square"in r){if(!(r.square in E))return[];a=p=E[r.square],c=!0}for(var g=a;g<=p;g++)if(136&g)g+=7;else{var d=b[g];if(null!=d&&d.color===t)if(d.type===o){var y=g+l[t][0];if(null==b[y]){e(b,n,g,y,h.NORMAL);y=g+l[t][1];u[t]===J(g)&&null==b[y]&&e(b,n,g,y,h.BIG_PAWN)}for(C=2;C<4;C++){136&(y=g+l[t][C])||(null!=b[y]&&b[y].color===f?e(b,n,g,y,h.CAPTURE):y===m&&e(b,n,g,m,h.EP_CAPTURE))}}else for(var C=0,T=s[d.type].length;C<T;C++){var I=s[d.type][C];for(y=g;!(136&(y+=I));){if(null!=b[y]){if(b[y].color===t)break;e(b,n,g,y,h.CAPTURE);break}if(e(b,n,g,y,h.NORMAL),"n"===d.type||"k"===d.type)break}}}if(!c||p===_[t]){if(S[t]&h.KSIDE_CASTLE){var P=(w=_[t])+2;null!=b[w+1]||null!=b[P]||j(f,_[t])||j(f,w+1)||j(f,P)||e(b,n,_[t],P,h.KSIDE_CASTLE)}if(S[t]&h.QSIDE_CASTLE){var w;P=(w=_[t])-2;null!=b[w-1]||null!=b[w-2]||null!=b[w-3]||j(f,_[t])||j(f,w-1)||j(f,P)||e(b,n,_[t],P,h.QSIDE_CASTLE)}}if(!v)return n;var L=[];for(g=0,T=n.length;g<T;g++)H(n[g]),B(t)||L.push(n[g]),Z();return L}function U(r,e){var n="";if(r.flags&h.KSIDE_CASTLE)n="O-O";else if(r.flags&h.QSIDE_CASTLE)n="O-O-O";else{var t=function(r,e){for(var n=Q({legal:!e}),t=r.from,o=r.to,i=r.piece,f=0,u=0,a=0,l=0,s=n.length;l<s;l++){var p=n[l].from,c=n[l].to;i===n[l].piece&&t!==p&&o===c&&(f++,J(t)===J(p)&&u++,V(t)===V(p)&&a++)}if(f>0)return u>0&&a>0?X(t):a>0?X(t).charAt(1):X(t).charAt(0);return""}(r,e);r.piece!==o&&(n+=r.piece.toUpperCase()+t),r.flags&(h.CAPTURE|h.EP_CAPTURE)&&(r.piece===o&&(n+=X(r.from)[0]),n+="x"),n+=X(r.to),r.flags&h.PROMOTION&&(n+="="+r.promotion.toUpperCase())}return H(r),$()&&(M()?n+="#":n+="+"),Z(),n}function x(r){return r.replace(/=/,"").replace(/[+#]?[?!]*$/,"")}function j(r,t){for(var i=E.a8;i<=E.h1;i++)if(136&i)i+=7;else if(null!=b[i]&&b[i].color===r){var f=b[i],u=i-t,a=u+119;if(p[a]&1<<v[f.type]){if(f.type===o){if(u>0){if(f.color===n)return!0}else if(f.color===e)return!0;continue}if("n"===f.type||"k"===f.type)return!0;for(var l=c[a],s=i+l,g=!1;s!==t;){if(null!=b[s]){g=!0;break}s+=l}if(!g)return!0}}return!1}function B(r){return j(Y(r),_[r])}function $(){return B(A)}function M(){return $()&&0===Q().length}function G(){return!$()&&0===Q().length}function F(){for(var r={},e=[],n=0,t=0,o=E.a8;o<=E.h1;o++)if(t=(t+1)%2,136&o)o+=7;else{var f=b[o];f&&(r[f.type]=f.type in r?r[f.type]+1:1,f.type===i&&e.push(t),n++)}if(2===n)return!0;if(3===n&&(1===r[i]||1===r.n))return!0;if(n===r[i]+2){var u=0,a=e.length;for(o=0;o<a;o++)u+=e[o];if(0===u||u===a)return!0}return!1}function W(){for(var r=[],e={},n=!1;;){var t=Z();if(!t)break;r.push(t)}for(;;){var o=N().split(" ").slice(0,4).join(" ");if(e[o]=o in e?e[o]+1:1,e[o]>=3&&(n=!0),!r.length)break;H(r.pop())}return n}function H(r){var n=A,i=Y(n);if(function(r){T.push({move:r,kings:{b:_.b,w:_.w},turn:A,castling:{b:S.b,w:S.w},ep_square:m,half_moves:y,move_number:C})}(r),b[r.to]=b[r.from],b[r.from]=null,r.flags&h.EP_CAPTURE&&(A===e?b[r.to-16]=null:b[r.to+16]=null),r.flags&h.PROMOTION&&(b[r.to]={type:r.promotion,color:n}),b[r.to].type===f){if(_[b[r.to].color]=r.to,r.flags&h.KSIDE_CASTLE){var u=r.to-1,a=r.to+1;b[u]=b[a],b[a]=null}else if(r.flags&h.QSIDE_CASTLE){u=r.to+1,a=r.to-2;b[u]=b[a],b[a]=null}S[n]=""}if(S[n])for(var l=0,s=d[n].length;l<s;l++)if(r.from===d[n][l].square&&S[n]&d[n][l].flag){S[n]^=d[n][l].flag;break}if(S[i])for(l=0,s=d[i].length;l<s;l++)if(r.to===d[i][l].square&&S[i]&d[i][l].flag){S[i]^=d[i][l].flag;break}m=r.flags&h.BIG_PAWN?"b"===A?r.to-16:r.to+16:t,r.piece===o||r.flags&(h.CAPTURE|h.EP_CAPTURE)?y=0:y++,A===e&&C++,A=Y(A)}function Z(){var r=T.pop();if(null==r)return null;var n=r.move;_=r.kings,A=r.turn,S=r.castling,m=r.ep_square,y=r.half_moves,C=r.move_number;var t,i,f=A,u=Y(A);if(b[n.from]=b[n.to],b[n.from].type=n.piece,b[n.to]=null,n.flags&h.CAPTURE)b[n.to]={type:n.captured,color:u};else if(n.flags&h.EP_CAPTURE){var a;a=f===e?n.to-16:n.to+16,b[a]={type:o,color:u}}n.flags&(h.KSIDE_CASTLE|h.QSIDE_CASTLE)&&(n.flags&h.KSIDE_CASTLE?(t=n.to+1,i=n.to-1):n.flags&h.QSIDE_CASTLE&&(t=n.to-2,i=n.to+1),b[t]=b[i],b[i]=null);return n}function z(r,e){var n=x(r);if(e){var t=n.match(/([pnbrqkPNBRQK])?([a-h][1-8])x?-?([a-h][1-8])([qrbnQRBN])?/);if(t)var o=t[1],i=t[2],f=t[3],u=t[4]}for(var a=Q(),l=0,s=a.length;l<s;l++){if(n===x(U(a[l]))||e&&n===x(U(a[l],!0)))return a[l];if(t&&(!o||o.toLowerCase()==a[l].piece)&&E[i]==a[l].from&&E[f]==a[l].to&&(!u||u.toLowerCase()==a[l].promotion))return a[l]}return null}function J(r){return r>>4}function V(r){return 15&r}function X(r){var e=V(r),n=J(r);return"abcdefgh".substring(e,e+1)+"87654321".substring(n,n+1)}function Y(r){return r===n?e:n}function rr(r){var e=er(r);e.san=U(e,!1),e.to=X(e.to),e.from=X(e.from);var n="";for(var t in h)h[t]&e.flags&&(n+=g[t]);return e.flags=n,e}function er(r){var e=r instanceof Array?[]:{};for(var n in r)e[n]="object"==typeof n?er(r[n]):r[n];return e}function nr(r){return r.replace(/^\s+|\s+$/g,"")}function tr(r){for(var e=Q({legal:!1}),n=0,t=A,o=0,i=e.length;o<i;o++){if(H(e[o]),!B(t))if(r-1>0)n+=tr(r-1);else n++;Z()}return n}return L(void 0===r?u:r),{WHITE:n,BLACK:e,PAWN:o,KNIGHT:"n",BISHOP:i,ROOK:"r",QUEEN:"q",KING:f,SQUARES:function(){for(var r=[],e=E.a8;e<=E.h1;e++)136&e?e+=7:r.push(X(e));return r}(),FLAGS:g,load:function(r){return L(r)},reset:function(){return w()},moves:function(r){for(var e=Q(r),n=[],t=0,o=e.length;t<o;t++)void 0!==r&&"verbose"in r&&r.verbose?n.push(rr(e[t])):n.push(U(e[t],!1));return n},in_check:function(){return $()},in_checkmate:function(){return M()},in_stalemate:function(){return G()},in_draw:function(){return y>=100||G()||F()||W()},insufficient_material:function(){return F()},in_threefold_repetition:function(){return W()},game_over:function(){return y>=100||M()||G()||F()||W()},validate_fen:function(r){return R(r)},fen:function(){return N()},board:function(){for(var r=[],e=[],n=E.a8;n<=E.h1;n++)null==b[n]?e.push(null):e.push({type:b[n].type,color:b[n].color}),n+1&136&&(r.push(e),e=[],n+=8);return r},pgn:function(r){var e="object"==typeof r&&"string"==typeof r.newline_char?r.newline_char:"\n",n="object"==typeof r&&"number"==typeof r.max_width?r.max_width:0,t=[],o=!1;for(var i in I)t.push("["+i+' "'+I[i]+'"]'+e),o=!0;o&&T.length&&t.push(e);for(var f=[];T.length>0;)f.push(Z());for(var u=[],a="";f.length>0;){var l=f.pop();T.length||"b"!==l.color?"w"===l.color&&(a.length&&u.push(a),a=C+"."):a=C+". ...",a=a+" "+U(l,!1),H(l)}if(a.length&&u.push(a),void 0!==I.Result&&u.push(I.Result),0===n)return t.join("")+u.join(" ");var s=0;for(i=0;i<u.length;i++)s+u[i].length>n&&0!==i?(" "===t[t.length-1]&&t.pop(),t.push(e),s=0):0!==i&&(t.push(" "),s++),t.push(u[i]),s+=u[i].length;return t.join("")},load_pgn:function(r,e){var n=void 0!==e&&"sloppy"in e&&e.sloppy;function t(r){return r.replace(/\\/g,"\\")}var o="object"==typeof e&&"string"==typeof e.newline_char?e.newline_char:"\r?\n",i=new RegExp("^(\\[((?:"+t(o)+")|.)*\\])(?:"+t(o)+"){2}"),f=i.test(r)?i.exec(r)[1]:"";w();var u=function(r,e){for(var n="object"==typeof e&&"string"==typeof e.newline_char?e.newline_char:"\r?\n",o={},i=r.split(new RegExp(t(n))),f="",u="",a=0;a<i.length;a++)f=i[a].replace(/^\[([A-Z][A-Za-z]*)\s.*\]$/,"$1"),u=i[a].replace(/^\[[A-Za-z]+\s"(.*)"\]$/,"$1"),nr(f).length>0&&(o[f]=u);return o}(f,e);for(var l in u)O([l,u[l]]);if(!("1"!==u.SetUp||"FEN"in u&&L(u.FEN,!0)))return!1;var s=r.replace(f,"").replace(new RegExp(t(o),"g")," ");s=s.replace(/(\{[^}]+\})+?/g,"");for(var p=/(\([^\(\)]+\))+?/g;p.test(s);)s=s.replace(p,"");var c=nr(s=(s=(s=s.replace(/\d+\.(\.\.)?/g,"")).replace(/\.\.\./g,"")).replace(/\$\d+/g,"")).split(new RegExp(/\s+/));c=c.join(",").replace(/,,+/g,",").split(",");for(var v="",g=0;g<c.length-1;g++){if(null==(v=z(c[g],n)))return!1;H(v)}if(v=c[c.length-1],a.indexOf(v)>-1)(function(r){for(var e in r)return!0;return!1})(I)&&void 0===I.Result&&O(["Result",v]);else{if(null==(v=z(v,n)))return!1;H(v)}return!0},header:function(){return O(arguments)},ascii:function(){return function(){for(var r="   +------------------------+\n",e=E.a8;e<=E.h1;e++){if(0===V(e)&&(r+=" "+"87654321"[J(e)]+" |"),null==b[e])r+=" . ";else{var t=b[e].type;r+=" "+(b[e].color===n?t.toUpperCase():t.toLowerCase())+" "}e+1&136&&(r+="|\n",e+=8)}return r+="   +------------------------+\n",r+"     a  b  c  d  e  f  g  h\n"}()},turn:function(){return A},move:function(r,e){var n=void 0!==e&&"sloppy"in e&&e.sloppy,t=null;if("string"==typeof r)t=z(r,n);else if("object"==typeof r)for(var o=Q(),i=0,f=o.length;i<f;i++)if(r.from===X(o[i].from)&&r.to===X(o[i].to)&&(!("promotion"in o[i])||r.promotion===o[i].promotion)){t=o[i];break}if(!t)return null;var u=rr(t);return H(t),u},undo:function(){var r=Z();return r?rr(r):null},clear:function(){return P()},put:function(r,e){return D(r,e)},get:function(r){return k(r)},remove:function(r){return function(r){var e=k(r);return b[E[r]]=null,e&&e.type===f&&(_[e.color]=t),q(N()),e}(r)},perft:function(r){return tr(r)},square_color:function(r){if(r in E){var e=E[r];return(J(e)+V(e))%2==0?"light":"dark"}return null},history:function(r){for(var e=[],n=[],t=(void 0!==r&&"verbose"in r&&r.verbose);T.length>0;)e.push(Z());for(;e.length>0;){var o=e.pop();t?n.push(rr(o)):n.push(U(o)),H(o)}return n}}};"undefined"!=typeof exports&&(exports.Chess=Chess),"undefined"!=typeof define&&define((function(){return Chess}));
+
+</script>
+<script id="core">
+// CORE-START
+// Ядро тренажёра: разбор PGN в дерево ходов, обход дерева, интервальное повторение.
+// Требует глобальный Chess (chess.js 0.10.3).
+var Core = (function () {
+  'use strict';
+  var START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+  var nodeSeq = 0;
+
+  // ---------- Токенизатор ----------
+  var RE_HEADER = /^\[\s*([A-Za-z0-9_]+)\s+"((?:[^"\\]|\\.)*)"\s*\]/;
+  var RE_RESULT = /^(1-0|0-1|1\/2-1\/2|\*)/;
+  var RE_MOVENUM = /^\d+\s*\.(\s*\.\s*\.)?|^\d+\s*\.\.\./;
+  var RE_SAN = /^(O-O-O|O-O|0-0-0|0-0|[NBRQK][a-h]?[1-8]?x?[a-h][1-8]|[a-h](?:x[a-h])?[1-8](?:=?[NBRQ])?)([+#])?((?:[!?]{1,2})?)/;
+  var RE_NAG = /^\$(\d+)/;
+
+  function tokenize(text) {
+    var toks = [], i = 0, n = text.length, m, rest;
+    while (i < n) {
+      var c = text[i];
+      if (c === ' ' || c === '\t' || c === '\n' || c === '\r' || c === '﻿') { i++; continue; }
+      if (c === '{') {
+        var j = text.indexOf('}', i + 1); if (j < 0) j = n;
+        toks.push({ t: 'comment', v: text.slice(i + 1, j) }); i = j + 1; continue;
+      }
+      if (c === ';') {
+        var k = text.indexOf('\n', i); if (k < 0) k = n;
+        toks.push({ t: 'comment', v: text.slice(i + 1, k) }); i = k; continue;
+      }
+      if (c === '%' && (i === 0 || text[i - 1] === '\n')) { // escape-строка PGN
+        var e = text.indexOf('\n', i); i = e < 0 ? n : e; continue;
+      }
+      if (c === '(') { toks.push({ t: '(' }); i++; continue; }
+      if (c === ')') { toks.push({ t: ')' }); i++; continue; }
+      rest = text.slice(i, i + 400);
+      if (c === '[' && (m = RE_HEADER.exec(rest))) {
+        toks.push({ t: 'header', k: m[1], v: m[2].replace(/\\(.)/g, '$1') }); i += m[0].length; continue;
+      }
+      if ((m = RE_RESULT.exec(rest))) { toks.push({ t: 'result', v: m[1] }); i += m[0].length; continue; }
+      if ((m = RE_MOVENUM.exec(rest))) { i += m[0].length; continue; }
+      if ((m = RE_NAG.exec(rest))) { toks.push({ t: 'nag', v: '$' + m[1] }); i += m[0].length; continue; }
+      if ((m = RE_SAN.exec(rest))) {
+        toks.push({ t: 'move', v: m[1].replace(/0/g, 'O'), nag: m[3] || '' }); i += m[0].length; continue;
+      }
+      if (rest.slice(0, 2) === '--') { toks.push({ t: 'null' }); i += 2; continue; }
+      i++; // неизвестный символ — пропускаем
+    }
+    return toks;
+  }
+
+  // ---------- Комментарии ----------
+  function parseComment(raw) {
+    var shapes = [];
+    var text = raw.replace(/\[%(cal|csl)\s+([^\]]*)\]/g, function (_, kind, body) {
+      body.split(',').forEach(function (s) {
+        s = s.trim();
+        var mm = /^([GRYB])([a-h][1-8])([a-h][1-8])?$/.exec(s);
+        if (mm) shapes.push({ color: mm[1], orig: mm[2], dest: mm[3] || null });
+      });
+      return ' ';
+    });
+    text = text.replace(/\[%[^\]]*\]/g, ' ').replace(/\s+/g, ' ').trim();
+    return { text: text, shapes: shapes };
+  }
+
+  function addComment(node, raw) {
+    var p = parseComment(raw);
+    if (p.text) node.comment = node.comment ? node.comment + ' ' + p.text : p.text;
+    if (p.shapes.length) node.shapes = node.shapes.concat(p.shapes);
+  }
+
+  function turnOf(fen) { return fen.split(' ')[1] === 'b' ? 'b' : 'w'; }
+
+  function makeNode(parent, san, uci, fen, nag) {
+    return { id: ++nodeSeq, san: san, uci: uci, fen: fen, turn: turnOf(fen),
+      ply: parent ? parent.ply + 1 : 0, nag: nag || '', comment: '', shapes: [],
+      children: [], parent: parent };
+  }
+
+  // ---------- Разбор одной партии ----------
+  function buildGame(headers, toks) {
+    var warnings = [];
+    var fen = headers.FEN || START_FEN;
+    var test = new Chess();
+    if (headers.FEN && !test.load(headers.FEN)) { warnings.push('Неверный FEN: ' + headers.FEN); fen = START_FEN; }
+    var root = makeNode(null, null, null, fen, '');
+    var cur = root;            // последний добавленный узел
+    var stack = [];            // сохранённые cur при входе в вариант
+    var dead = 0;              // >0 — пропускаем ветку после нелегального хода (глубина скобок)
+    var pending = '';          // комментарий в начале варианта (до первого хода)
+    var atVarStart = false;
+    var moved = false;
+
+    for (var i = 0; i < toks.length; i++) {
+      var tk = toks[i];
+      if (dead) {
+        if (tk.t === '(') dead++;
+        else if (tk.t === ')') { dead--; if (!dead) { cur = stack.pop(); atVarStart = false; } }
+        continue;
+      }
+      if (tk.t === 'comment') {
+        if (atVarStart) pending += ' ' + tk.v;
+        else if (!moved && cur === root) addComment(root, tk.v);
+        else addComment(cur, tk.v);
+      } else if (tk.t === 'nag') {
+        if (cur !== root) cur.nag += (cur.nag ? ' ' : '') + tk.v;
+      } else if (tk.t === '(') {
+        if (cur === root) { dead = 1; stack.push(cur); continue; } // вариант без хода — пропуск
+        stack.push(cur); cur = cur.parent; atVarStart = true; pending = '';
+      } else if (tk.t === ')') {
+        if (stack.length) cur = stack.pop();
+        atVarStart = false; pending = '';
+      } else if (tk.t === 'move') {
+        var ch = new Chess(cur.fen);
+        var mv = ch.move(tk.v, { sloppy: true });
+        if (!mv) {
+          warnings.push('Нелегальный ход ' + tk.v + ' после ' + (cur.san || 'начала') + ' (' + cur.fen + ')');
+          if (stack.length) { dead = 1; } else { break; }
+          continue;
+        }
+        var uci = mv.from + mv.to + (mv.promotion || '');
+        var existing = null;
+        for (var c = 0; c < cur.children.length; c++) if (cur.children[c].uci === uci) existing = cur.children[c];
+        var node = existing || makeNode(cur, mv.san, uci, ch.fen(), tk.nag);
+        if (!existing) cur.children.push(node);
+        if (pending) { addComment(node, pending); pending = ''; }
+        cur = node; atVarStart = false; moved = true;
+      }
+    }
+    return { root: root, warnings: warnings };
+  }
+
+  // ---------- Разбор файла (много глав) ----------
+  function parsePGN(text, fallbackName) {
+    var toks = tokenize(text || '');
+    var games = [], headers = {}, body = [], hasMoves = false;
+    function flush() {
+      if (!hasMoves && !Object.keys(headers).length) return;
+      if (!hasMoves && !body.some(function (t) { return t.t === 'comment'; }) && !headers.FEN) { headers = {}; body = []; return; }
+      games.push({ headers: headers, toks: body });
+      headers = {}; body = []; hasMoves = false;
+    }
+    for (var i = 0; i < toks.length; i++) {
+      var tk = toks[i];
+      if (tk.t === 'header') {
+        if (body.length) flush();
+        headers[tk.k] = tk.v;
+      } else if (tk.t === 'result') {
+        // результат внутри варианта игнорируем; на верхнем уровне — конец партии
+        var depth = 0; body.forEach(function (t) { if (t.t === '(') depth++; else if (t.t === ')') depth--; });
+        if (depth <= 0) { hasMoves = hasMoves || body.length > 0; flush(); }
+      } else {
+        if (tk.t === 'move') hasMoves = true;
+        body.push(tk);
+      }
+    }
+    flush();
+    return games.map(function (g, idx) {
+      var h = g.headers, built = buildGame(h, g.toks);
+      var orient = (h.Orientation || '').toLowerCase() === 'black' ? 'b' : 'w';
+      return {
+        index: idx,
+        name: h.ChapterName || h.Event || ('Глава ' + (idx + 1)),
+        study: h.StudyName || fallbackName || '',
+        orientation: orient,
+        startFen: built.root.fen,
+        hasFen: !!h.FEN,
+        root: built.root,
+        warnings: built.warnings,
+        headers: h
+      };
+    });
+  }
+
+  // ---------- Работа с деревом ----------
+  function pathOf(node) {
+    var p = []; while (node && node.parent) { p.unshift(node.uci); node = node.parent; } return p.join(' ');
+  }
+  function nodeByPath(root, path) {
+    if (!path) return root;
+    var node = root, parts = path.split(' ');
+    for (var i = 0; i < parts.length; i++) {
+      var next = null;
+      for (var c = 0; c < node.children.length; c++) if (node.children[c].uci === parts[i]) next = node.children[c];
+      if (!next) return null; node = next;
+    }
+    return node;
+  }
+  function mainline(root) { var a = [], n = root; while (n.children.length) { n = n.children[0]; a.push(n); } return a; }
+  function countVariations(root) {
+    var k = 0; (function walk(n) { if (n.children.length > 1) k += n.children.length - 1; n.children.forEach(walk); })(root); return k;
+  }
+  // Верные ходы ученика в узле (sideVars: 'errors' — только главный, 'ok' — все)
+  function correctChildren(node, sideVars) { return sideVars === 'ok' ? node.children.slice() : node.children.slice(0, 1); }
+  function mistakeChildren(node, sideVars) { return sideVars === 'ok' ? [] : node.children.slice(1); }
+
+  // Позиции для карточек: узлы, где ходит ученик и есть верный ход.
+  function studentPositions(chapter, sideVars) {
+    var out = [];
+    (function walk(n) {
+      if (!n.children.length) return;
+      if (n.turn === chapter.orientation) {
+        out.push(n);
+        correctChildren(n, sideVars).forEach(walk); // в ветки-ошибки не заходим
+      } else n.children.forEach(walk);
+    })(chapter.root);
+    return out;
+  }
+
+  // ---------- Интервальное повторение (упрощённый SM-2) ----------
+  function today(now) {
+    var d = now ? new Date(now) : new Date();
+    return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 86400000);
+  }
+  function newCard() { return { interval: 0, ease: 2.5, due: 0, reps: 0, lapses: 0, seen: false }; }
+  function grade(card, ok, day) {
+    var c = Object.assign(newCard(), card);
+    if (day == null) day = today();
+    c.seen = true; c.last = day;
+    if (ok) {
+      c.reps++;
+      c.interval = c.interval === 0 ? 1 : Math.max(c.interval + 1, Math.round(c.interval * c.ease));
+      c.due = day + c.interval;
+    } else {
+      c.lapses++; c.interval = 0; c.ease = Math.max(1.3, +(c.ease - 0.2).toFixed(2)); c.due = day;
+    }
+    return c;
+  }
+
+  return { START_FEN: START_FEN, tokenize: tokenize, parseComment: parseComment, parsePGN: parsePGN,
+    pathOf: pathOf, nodeByPath: nodeByPath, mainline: mainline, countVariations: countVariations,
+    correctChildren: correctChildren, mistakeChildren: mistakeChildren, studentPositions: studentPositions,
+    today: today, newCard: newCard, grade: grade, turnOf: turnOf };
+})();
+if (typeof module !== 'undefined') module.exports = Core;
+// CORE-END
+
+</script>
+<script>
+// Интерфейс тренажёра. Использует Chess (chess.js) и Core (ядро).
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var KEY = 'debut-trainer-v1';
+  var GLYPH = { k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' };
+  var VS = '︎'; // текстовое начертание, не эмодзи
+  var ARROW = { G: '#15781B', R: '#c0392b', Y: '#e68f00', B: '#1f5fbf' };
+  var SIDE_NAME = { w: 'белых', b: 'чёрных' };
+
+  var toastTimer = null;
+  function toast(msg) {
+    var el = $('toast'); el.textContent = msg; el.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.classList.remove('show'); }, 3500);
+  }
+
+  // ---------- Хранилище ----------
+  function defaults() {
+    return { v: 1, courses: [], progress: {}, cards: {}, selected: {}, collapsed: {}, last: null, sampleRemoved: false,
+      settings: { opp: 'random', side: 'errors', newPerDay: 20, delay: 500, theme: 'auto' },
+      stats: { day: 0, reviewed: 0, errors: 0, newDone: 0 } };
+  }
+  function normalize(d) {
+    var base = defaults();
+    if (!d || typeof d !== 'object') return base;
+    Object.keys(base).forEach(function (k) { if (d[k] === undefined) d[k] = base[k]; });
+    d.settings = Object.assign(base.settings, d.settings || {});
+    d.stats = Object.assign(base.stats, d.stats || {});
+    if (!Array.isArray(d.courses)) d.courses = [];
+    return d;
+  }
+  function load() {
+    try { var raw = localStorage.getItem(KEY); return normalize(raw ? JSON.parse(raw) : null); }
+    catch (e) { return defaults(); }
+  }
+  var storageOk = true;
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(store)); }
+    catch (e) { if (storageOk) { storageOk = false; toast('Не удалось сохранить данные в браузере: прогресс не запомнится.'); } }
+  }
+  var store = load();
+
+  // ---------- Курсы ----------
+  var courses = [];
+  // Встроенные курсы: добавляются при первом запуске и обновляются с новой версией файла
+  function builtinList() {
+    return Array.prototype.map.call(document.querySelectorAll('script.builtin-pgn'), function (s) {
+      return { id: s.getAttribute('data-id'), name: s.getAttribute('data-name'), pgn: s.textContent.trim() };
+    });
+  }
+  function dropCourseData(id) {
+    Object.keys(store.progress).forEach(function (k) { if (k.indexOf(id + ':') === 0) delete store.progress[k]; });
+    Object.keys(store.selected).forEach(function (k) { if (k.indexOf(id + ':') === 0) delete store.selected[k]; });
+    Object.keys(store.cards).forEach(function (k) { if (k.indexOf(id + '|') === 0) delete store.cards[k]; });
+  }
+  function ensureBuiltins() {
+    store.removedBuiltins = store.removedBuiltins || {};
+    // старый учебный пример больше не нужен
+    if (store.courses.some(function (c) { return c.id === 'sample'; })) {
+      store.courses = store.courses.filter(function (c) { return c.id !== 'sample'; });
+      dropCourseData('sample');
+    }
+    var list = builtinList();
+    list.slice().reverse().forEach(function (b) {
+      var cur = store.courses.filter(function (c) { return c.id === b.id; })[0];
+      if (!cur && !store.removedBuiltins[b.id]) store.courses.unshift({ id: b.id, name: b.name, pgn: b.pgn, builtin: true, added: Date.now() });
+      else if (cur && cur.builtin && cur.pgn !== b.pgn) cur.pgn = b.pgn;
+    });
+  }
+  function rebuild() {
+    courses = store.courses.map(function (c) {
+      var course = { id: c.id, name: c.name, chapters: [] };
+      try { course.chapters = Core.parsePGN(c.pgn, c.name); } catch (e) { console.error(e); }
+      course.chapters.forEach(function (ch, i) { ch.id = c.id + ':' + i; ch.course = course; });
+      return course;
+    });
+  }
+  function allChapters() { var a = []; courses.forEach(function (c) { a = a.concat(c.chapters); }); return a; }
+  function chapterById(id) { return allChapters().filter(function (c) { return c.id === id; })[0] || null; }
+  function chosenChapters() {
+    var all = allChapters(), sel = all.filter(function (c) { return store.selected[c.id]; });
+    return sel.length ? sel : all;
+  }
+
+  // ---------- Сессия ----------
+  var S = null, token = 0, flipped = false, sel = null, drag = null;
+  var showHintArrow = false;
+
+  function settings() { return store.settings; }
+  function rollDay() {
+    var d = Core.today();
+    if (store.stats.day !== d) store.stats = { day: d, reviewed: 0, errors: 0, newDone: 0 };
+  }
+
+  function startChapter(ch, mode) {
+    if (!ch) return;
+    token++;
+    S = { mode: mode, chapter: ch, node: ch.root, errors: 0, state: 'idle', wrong: null, hint: 0, msgs: [] };
+    if (mode === 'lesson' && ch.root.comment) S.msgs.push({ text: ch.root.comment });
+    sel = null;
+    store.last = { id: ch.id, mode: mode === 'mix' ? 'drill' : mode }; save();
+    closeDrawer();
+    renderLibrary();
+    proceed();
+  }
+
+  function proceed() {
+    if (!S.node.children.length) { finish(); return; }
+    if (S.node.turn !== S.chapter.orientation) {
+      S.state = 'opp'; renderAll();
+      var t = token;
+      setTimeout(function () { if (t === token) oppMove(); }, Math.max(0, +settings().delay || 0));
+    } else { S.state = 'student'; renderAll(); }
+  }
+
+  function oppMove() {
+    var ch = S.node.children, pick;
+    var useMain = S.mode === 'lesson' || (S.mode === 'drill' && settings().opp === 'main');
+    pick = useMain ? ch[0] : ch[Math.floor(Math.random() * ch.length)];
+    S.node = pick;
+    if (S.mode === 'lesson' && pick.comment) S.msgs.push({ text: pick.comment });
+    proceed();
+  }
+
+  function finish() {
+    S.state = 'done';
+    var p = store.progress[S.chapter.id] || (store.progress[S.chapter.id] = {});
+    p.lastErrors = S.errors; p.attempts = (p.attempts || 0) + 1; p.lastDay = Core.today();
+    if (S.mode === 'lesson') p.lesson = true;
+    else { p.drill = true; if (!S.errors) p.clean = true; }
+    save(); renderAll(); renderLibrary();
+  }
+
+  // Верные ходы и ошибки для текущей позиции (в повторении — по всем вхождениям позиции)
+  function moveSets() {
+    var side = settings().side;
+    var nodes = S.mode === 'review' ? S.review.queue[S.review.idx].occ.map(function (o) { return o.node; }) : [S.node];
+    var ok = [], bad = [];
+    nodes.forEach(function (n) { ok = ok.concat(Core.correctChildren(n, side)); bad = bad.concat(Core.mistakeChildren(n, side)); });
+    var okU = {}; ok.forEach(function (c) { okU[c.uci] = 1; });
+    bad = bad.filter(function (c) { return !okU[c.uci]; });
+    return { ok: ok, bad: bad };
+  }
+
+  function userMove(uci) {
+    if (!S || S.state !== 'student') return;
+    var sets = moveSets();
+    var hit = sets.ok.filter(function (c) { return c.uci === uci; })[0];
+    if (hit) { goodMove(hit); return; }
+    var mis = sets.bad.filter(function (c) { return c.uci === uci; })[0];
+    var chess = new Chess(S.node.fen);
+    var mv = chess.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci[4] || 'q' });
+    if (!mv) return;
+    S.wrong = { fen: chess.fen(), uci: uci, san: mv.san, text: mis ? mis.comment : '' };
+    S.state = 'wrong';
+    registerError();
+    renderAll();
+  }
+
+  function registerError() {
+    S.errors++;
+    if (S.mode === 'review' && !S.review.failedThis) {
+      S.review.failedThis = true;
+      var e = S.review.queue[S.review.idx];
+      gradeEntry(e, false);
+      S.review.queue.push(e); // вернётся в конце сессии
+    }
+  }
+
+  function goodMove(child) {
+    S.node = child; S.hint = 0; showHintArrow = false; S.wrong = null;
+    S.msgs = [];
+    if (S.mode === 'review') {
+      if (!S.review.failedThis) gradeEntry(S.review.queue[S.review.idx], true);
+      S.msgs.push({ cls: 'fb', text: '✓ Верно!' });
+      if (child.comment) S.msgs.push({ text: child.comment });
+      S.state = 'review-ok'; renderAll(); return;
+    }
+    if (S.mode === 'lesson' && child.comment) S.msgs.push({ text: child.comment });
+    proceed();
+  }
+
+  function retry() {
+    if (!S || S.state !== 'wrong') return;
+    S.wrong = null; S.state = 'student'; renderAll();
+  }
+
+  function hint() {
+    if (!S) return;
+    if (S.state === 'wrong') retry();
+    if (S.state !== 'student') return;
+    if (S.hint === 0) registerError();
+    S.hint = Math.min(2, S.hint + 1);
+    showHintArrow = S.hint >= 2;
+    renderAll();
+  }
+
+  function back() {
+    if (!S || S.mode === 'review') return;
+    if (S.state === 'wrong') { retry(); return; }
+    token++;
+    var n = S.node.parent;
+    while (n && n.turn !== S.chapter.orientation) n = n.parent;
+    if (!n) { startChapter(S.chapter, S.mode); return; }
+    S.node = n; S.msgs = []; S.hint = 0; showHintArrow = false; S.wrong = null; S.state = 'student';
+    if (!n.children.length) { finish(); return; }
+    renderAll();
+  }
+
+  function nextChapter() {
+    var all = allChapters(); if (!all.length) return;
+    if (S && S.mode === 'mix') { startMix(); return; }
+    if (S && S.mode === 'review') { nextCard(); return; }
+    var i = S ? all.indexOf(S.chapter) : -1;
+    startChapter(all[(i + 1) % all.length], 'lesson');
+  }
+
+  // ---------- Вперемешку ----------
+  function startMix() {
+    var chs = chosenChapters(); if (!chs.length) { toast('Нет глав. Импортируйте PGN.'); return; }
+    var cur = S && S.chapter, pick = chs[Math.floor(Math.random() * chs.length)];
+    if (chs.length > 1) while (pick === cur) pick = chs[Math.floor(Math.random() * chs.length)];
+    startChapter(pick, 'mix');
+  }
+
+  // ---------- Повторение ----------
+  function fenKey(fen) { return fen.split(' ').slice(0, 4).join(' '); }
+  function collectEntries(chs) {
+    var side = settings().side, map = {}, list = [];
+    chs.forEach(function (ch) {
+      Core.studentPositions(ch, side).forEach(function (node) {
+        var key = ch.course.id + '|' + fenKey(node.fen);
+        if (!map[key]) { map[key] = { key: key, occ: [] }; list.push(map[key]); }
+        map[key].occ.push({ chapter: ch, node: node });
+      });
+    });
+    return list;
+  }
+  function dueInfo() {
+    rollDay();
+    var day = Core.today(), due = 0, fresh = 0;
+    collectEntries(chosenChapters()).forEach(function (e) {
+      var c = store.cards[e.key];
+      if (c && c.seen) { if (c.due <= day) due++; } else fresh++;
+    });
+    var left = Math.max(0, (+settings().newPerDay || 0) - store.stats.newDone);
+    return { due: due, fresh: Math.min(fresh, left), freshTotal: fresh };
+  }
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function gradeEntry(e, ok) {
+    rollDay();
+    var c = store.cards[e.key];
+    var wasNew = !c || !c.seen;
+    store.cards[e.key] = Core.grade(c || Core.newCard(), ok);
+    if (wasNew && !e.countedNew) { store.stats.newDone++; e.countedNew = true; }
+    if (!e.countedRev) { store.stats.reviewed++; e.countedRev = true; }
+    if (!ok) store.stats.errors++;
+    save(); renderStats();
+  }
+  function startReview() {
+    rollDay();
+    var chs = chosenChapters(); if (!chs.length) { toast('Нет глав. Импортируйте PGN.'); return; }
+    var day = Core.today(), entries = collectEntries(chs), due = [], fresh = [];
+    entries.forEach(function (e) {
+      var c = store.cards[e.key];
+      if (c && c.seen) { if (c.due <= day) due.push(e); } else fresh.push(e);
+    });
+    var left = Math.max(0, (+settings().newPerDay || 0) - store.stats.newDone);
+    var queue = shuffle(due).concat(fresh.slice(0, left));
+    if (!queue.length) {
+      var next = entries.map(function (e) { var c = store.cards[e.key]; return c && c.seen ? c.due : Infinity; })
+        .reduce(function (a, b) { return Math.min(a, b); }, Infinity);
+      toast(next === Infinity ? 'Новых позиций на сегодня больше нет.' : 'На сегодня всё повторено. Следующие позиции через ' + (next - day) + ' дн.');
+      return;
+    }
+    token++;
+    S = { mode: 'review', chapter: null, node: null, errors: 0, state: 'idle', wrong: null, hint: 0, msgs: [],
+      review: { queue: queue, idx: 0, total: queue.length, failedThis: false, startErrors: store.stats.errors } };
+    closeDrawer();
+    showCard();
+  }
+  function showCard() {
+    var e = S.review.queue[S.review.idx], o = e.occ[0];
+    S.chapter = o.chapter; S.node = o.node; S.state = 'student'; S.wrong = null; S.hint = 0; showHintArrow = false;
+    S.review.failedThis = false; S.msgs = [];
+    sel = null;
+    renderAll(); renderLibrary();
+  }
+  function nextCard() {
+    if (!S || S.mode !== 'review') return;
+    S.review.idx++;
+    if (S.review.idx >= S.review.queue.length) { S.state = 'review-done'; renderAll(); return; }
+    showCard();
+  }
+
+  // ---------- Доска ----------
+  var boardEl = $('board');
+  function bottomColor() { var o = S && S.chapter ? S.chapter.orientation : 'w'; return flipped ? (o === 'w' ? 'b' : 'w') : o; }
+  function sqName(r, c) {
+    var white = bottomColor() === 'w';
+    var f = white ? c : 7 - c, rank = white ? 8 - r : r + 1;
+    return 'abcdefgh'[f] + rank;
+  }
+  function sqRC(sq) {
+    var f = sq.charCodeAt(0) - 97, rank = +sq[1], white = bottomColor() === 'w';
+    return white ? { r: 8 - rank, c: f } : { r: rank - 1, c: 7 - f };
+  }
+  function squareAt(x, y) {
+    var b = boardEl.getBoundingClientRect();
+    var c = Math.floor((x - b.left) / b.width * 8), r = Math.floor((y - b.top) / b.height * 8);
+    if (c < 0 || c > 7 || r < 0 || r > 7) return null;
+    return sqName(r, c);
+  }
+  function currentFen() {
+    if (!S || !S.node) return Core.START_FEN;
+    return S.wrong ? S.wrong.fen : S.node.fen;
+  }
+  function canMove() { return S && S.state === 'student'; }
+
+  function renderBoard() {
+    var fen = currentFen(), chess = new Chess(fen);
+    var last = S && S.wrong ? S.wrong.uci : (S && S.node && S.node.uci) || '';
+    var lastFrom = last.slice(0, 2), lastTo = last.slice(2, 4);
+    var dests = {};
+    if (sel && canMove()) chess.moves({ square: sel, verbose: true }).forEach(function (m) { dests[m.to] = m.captured ? 'ring' : 'dot'; });
+    var hintFrom = null, hintTo = null;
+    if (S && S.state === 'student' && S.hint > 0) {
+      var ok = moveSets().ok[0];
+      if (ok) { hintFrom = ok.uci.slice(0, 2); hintTo = ok.uci.slice(2, 4); }
+    }
+    var checkSq = null;
+    if (chess.in_check()) {
+      var t = chess.turn();
+      chess.SQUARES.forEach(function (s) { var p = chess.get(s); if (p && p.type === 'k' && p.color === t) checkSq = s; });
+    }
+    var html = '';
+    for (var r = 0; r < 8; r++) for (var c = 0; c < 8; c++) {
+      var sq = sqName(r, c), f = sq.charCodeAt(0) - 97, rank = +sq[1];
+      var cls = 'sq ' + ((f + rank) % 2 === 1 ? 'd' : 'l');
+      if (sq === lastFrom || sq === lastTo) cls += S && S.wrong ? ' wrong' : ' last';
+      if (sq === sel && canMove()) cls += ' sel';
+      if (sq === hintFrom) cls += ' hint';
+      if (sq === checkSq) cls += ' check';
+      var inner = '';
+      if (r === 7) inner += '<span class="coord f">' + sq[0] + '</span>';
+      if (c === 0) inner += '<span class="coord r">' + sq[1] + '</span>';
+      var p = chess.get(sq);
+      if (p) {
+        var mov = canMove() && p.color === chess.turn() ? ' movable' : '';
+        inner += '<span class="pc ' + p.color + mov + '" data-sq="' + sq + '">' + GLYPH[p.type] + VS + '</span>';
+      }
+      if (dests[sq]) inner += '<span class="' + (dests[sq] === 'ring' ? 'ring' : 'dotm') + '"></span>';
+      html += '<div class="' + cls + '" data-sq="' + sq + '">' + inner + '</div>';
+    }
+    // Стрелки и подсветка полей
+    var shapes = [];
+    if (S && S.mode === 'lesson' && !S.wrong && S.node && S.node.shapes) shapes = shapes.concat(S.node.shapes);
+    if (showHintArrow && hintFrom) shapes.push({ color: 'B', orig: hintFrom, dest: hintTo });
+    if (shapes.length) html += svgShapes(shapes);
+    boardEl.innerHTML = html;
+  }
+
+  function svgShapes(shapes) {
+    var defs = '', body = '';
+    Object.keys(ARROW).forEach(function (k) {
+      defs += '<marker id="ah' + k + '" markerWidth="4" markerHeight="4" refX="2.05" refY="2" orient="auto"><path d="M0,0 L4,2 L0,4 z" fill="' + ARROW[k] + '"/></marker>';
+    });
+    shapes.forEach(function (s) {
+      var col = ARROW[s.color] || ARROW.G, a = sqRC(s.orig);
+      if (!s.dest || s.dest === s.orig) {
+        body += '<circle cx="' + (a.c + .5) + '" cy="' + (a.r + .5) + '" r=".44" fill="none" stroke="' + col + '" stroke-width=".07" opacity=".85"/>';
+        return;
+      }
+      var b = sqRC(s.dest), x1 = a.c + .5, y1 = a.r + .5, x2 = b.c + .5, y2 = b.r + .5;
+      var dx = x2 - x1, dy = y2 - y1, len = Math.sqrt(dx * dx + dy * dy), k = (len - .35) / len;
+      body += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + (x1 + dx * k) + '" y2="' + (y1 + dy * k) + '" stroke="' + col +
+        '" stroke-width=".16" stroke-linecap="round" opacity=".8" marker-end="url(#ah' + (ARROW[s.color] ? s.color : 'G') + ')"/>';
+    });
+    return '<svg class="arrows" viewBox="0 0 8 8"><defs>' + defs + '</defs>' + body + '</svg>';
+  }
+
+  // Ходы мышью и пальцем: перетаскивание и клик-клик
+  boardEl.addEventListener('pointerdown', function (e) {
+    if (e.button !== undefined && e.button !== 0) return;
+    var sq = squareAt(e.clientX, e.clientY); if (!sq || !canMove()) return;
+    e.preventDefault();
+    var chess = new Chess(S.node.fen), p = chess.get(sq);
+    if (sel && sel !== sq && chess.moves({ square: sel, verbose: true }).some(function (m) { return m.to === sq; })) {
+      tryMove(sel, sq); return;
+    }
+    if (p && p.color === chess.turn()) {
+      var reselect = sel === sq;
+      sel = sq; renderBoard();
+      drag = { from: sq, x: e.clientX, y: e.clientY, moved: false, ghost: null, reselect: reselect, id: e.pointerId };
+      try { boardEl.setPointerCapture(e.pointerId); } catch (err) { /* нет захвата */ }
+    } else { sel = null; renderBoard(); }
+  });
+  boardEl.addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    if (!drag.moved && Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) > 5) {
+      drag.moved = true;
+      var pcEl = boardEl.querySelector('.pc[data-sq="' + drag.from + '"]');
+      if (pcEl) {
+        var g = pcEl.cloneNode(true); g.classList.add('ghost'); g.classList.remove('movable');
+        g.style.fontSize = getComputedStyle(pcEl).fontSize;
+        document.body.appendChild(g); drag.ghost = g; pcEl.classList.add('dragging');
+      }
+    }
+    if (drag.ghost) { drag.ghost.style.left = e.clientX + 'px'; drag.ghost.style.top = e.clientY + 'px'; }
+  });
+  function endDrag(e, cancel) {
+    if (!drag) return;
+    var d = drag; drag = null;
+    if (d.ghost) d.ghost.remove();
+    var to = cancel ? null : squareAt(e.clientX, e.clientY);
+    if (d.moved) {
+      if (to && to !== d.from) tryMove(d.from, to); else renderBoard();
+    } else if (d.reselect && to === d.from) { sel = null; renderBoard(); }
+  }
+  boardEl.addEventListener('pointerup', function (e) { endDrag(e, false); });
+  boardEl.addEventListener('pointercancel', function (e) { endDrag(e, true); });
+  boardEl.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+  function tryMove(from, to) {
+    var chess = new Chess(S.node.fen);
+    var moves = chess.moves({ square: from, verbose: true }).filter(function (m) { return m.to === to; });
+    if (!moves.length) { sel = null; renderBoard(); return; }
+    if (moves.some(function (m) { return m.promotion; })) {
+      showPromo(to, chess.turn(), function (pc) { sel = null; userMove(from + to + pc); });
+      return;
+    }
+    sel = null;
+    userMove(from + to);
+  }
+
+  function showPromo(to, color, cb) {
+    var box = $('promo'), rc = sqRC(to), b = boardEl.getBoundingClientRect(), size = b.width / 8;
+    box.innerHTML = '';
+    ['q', 'r', 'b', 'n'].forEach(function (t) {
+      var btn = document.createElement('button');
+      btn.innerHTML = '<span class="pc ' + color + '" style="font-size:' + (size * .7) + 'px">' + GLYPH[t] + VS + '</span>';
+      btn.onclick = function () { box.classList.add('hidden'); cb(t); };
+      box.appendChild(btn);
+    });
+    box.classList.remove('hidden');
+    var left = Math.min(Math.max(8, b.left + rc.c * size - size), window.innerWidth - box.offsetWidth - 8);
+    box.style.left = left + 'px'; box.style.top = Math.max(8, b.top + rc.r * size) + 'px';
+  }
+  document.addEventListener('pointerdown', function (e) {
+    var box = $('promo');
+    if (!box.classList.contains('hidden') && !box.contains(e.target)) { box.classList.add('hidden'); sel = null; renderBoard(); }
+  });
+
+  // ---------- Боковая панель ----------
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  function renderSide() {
+    var tabs = $('modeTabs'), title = $('chTitle'), sub = $('chSub'), bubble = $('bubble'), status = $('status'), act = $('actionArea');
+    if (!S) {
+      title.textContent = 'Нет глав'; sub.textContent = 'Нажмите «＋ Импорт» и добавьте PGN.';
+      bubble.innerHTML = '<p>Загрузите PGN-файл или ссылку на студию Lichess.</p>';
+      status.innerHTML = ''; act.innerHTML = ''; tabs.classList.add('hidden'); $('moves').innerHTML = '';
+      return;
+    }
+    var side = SIDE_NAME[S.chapter.orientation];
+    tabs.classList.toggle('hidden', S.mode === 'review' || S.mode === 'mix');
+    Array.prototype.forEach.call(tabs.children, function (b) { b.classList.toggle('on', b.dataset.mode === S.mode); });
+
+    if (S.mode === 'review') {
+      title.textContent = 'Повторение';
+      sub.textContent = S.chapter.course.name + ' · ' + S.chapter.name;
+    } else {
+      title.textContent = S.chapter.name;
+      sub.textContent = S.chapter.course.name + ' · за ' + side + (S.mode === 'mix' ? ' · вперемешку' : '');
+    }
+
+    // Облако тренера
+    var h = '';
+    if (S.state === 'wrong') {
+      h = '<p class="bad">✗ ' + esc(S.wrong.san) + ' — не тот ход.</p>' + (S.wrong.text ? '<p>' + esc(S.wrong.text) + '</p>' : '<p>Попробуйте ещё раз.</p>');
+    } else if (S.state === 'review-done') {
+      var errs = store.stats.errors - S.review.startErrors;
+      h = '<p class="fb">Повторение закончено!</p><p>Позиций: ' + S.review.total + '. Ошибок: ' + errs + '.</p>';
+    } else if (S.msgs.length) {
+      h = S.msgs.map(function (m) { return '<p' + (m.cls ? ' class="' + m.cls + '"' : '') + '>' + esc(m.text) + '</p>'; }).join('');
+    } else if (S.mode === 'review') {
+      h = '<p>Найдите ход за ' + side + ' в этой позиции.</p>';
+    } else if (S.mode === 'lesson') {
+      h = '<p>Найдите лучший ход за ' + side + '.</p>';
+    } else {
+      h = '<p>Сыграйте всю линию за ' + side + ' без подсказок.</p>';
+    }
+    if (S.state === 'done') {
+      h += '<div class="done-card"><h3>🎉 Глава пройдена!</h3>Ошибок и подсказок: <b>' + S.errors + '</b></div>';
+    }
+    bubble.innerHTML = h;
+
+    // Строка состояния
+    var turn = S.node.turn, st = '';
+    if (S.state === 'student') st = 'Ваш ход<small>Найдите лучший ход за ' + side + '</small>';
+    else if (S.state === 'opp') st = 'Ход соперника…';
+    else if (S.state === 'wrong') st = 'Ошибка<small>Нажмите «Повторить» или Enter</small>';
+    else if (S.state === 'review-ok') st = 'Верно<small>Enter — следующая позиция</small>';
+    status.innerHTML = st ? '<span class="turnpc pc ' + turn + '">' + GLYPH.k + VS + '</span><div>' + st + '</div>' : '';
+
+    // Кнопки действий
+    act.innerHTML = '';
+    function add(label, cls, fn) { var b = document.createElement('button'); b.textContent = label; if (cls) b.className = cls; b.onclick = fn; act.appendChild(b); }
+    if (S.state === 'wrong') { add('⟲ Повторить', 'danger big-retry', retry); }
+    else if (S.state === 'done') {
+      if (S.mode === 'mix') add('Следующая случайная →', 'primary', startMix);
+      else {
+        add('Следующая глава →', 'primary', nextChapter);
+        add('Ещё раз', '', function () { startChapter(S.chapter, S.mode); });
+        if (S.mode === 'lesson') add('Закрепление', '', function () { startChapter(S.chapter, 'drill'); });
+        else add('Урок', '', function () { startChapter(S.chapter, 'lesson'); });
+      }
+    } else if (S.state === 'review-ok') { add('Дальше →', 'primary', nextCard); }
+    else if (S.state === 'review-done') { add('Закрыть', 'primary', function () { var ch = S.chapter; startChapter(ch, 'lesson'); }); }
+    if (S.mode === 'review' && S.state !== 'review-done') {
+      var info = document.createElement('div');
+      info.style.cssText = 'flex-basis:100%;color:var(--muted);font-size:13px';
+      info.textContent = 'Позиция ' + Math.min(S.review.idx + 1, S.review.queue.length) + ' из ' + S.review.queue.length;
+      act.appendChild(info);
+    }
+
+    // Кнопки управления
+    $('btnBack').disabled = S.mode === 'review' || S.node === S.chapter.root;
+    $('btnHint').disabled = !(S.state === 'student' || S.state === 'wrong');
+    $('btnRestart').disabled = S.mode === 'review';
+    $('btnNext').textContent = S.mode === 'review' ? 'Пропустить →' : S.mode === 'mix' ? 'Другая глава →' : 'Дальше →';
+
+    renderMoves();
+  }
+
+  function renderMoves() {
+    var chain = [], n = S.node;
+    while (n && n.parent) { chain.unshift(n); n = n.parent; }
+    var h = '';
+    chain.forEach(function (nd, i) {
+      var pf = nd.parent.fen.split(' '), num = pf[5] || '1';
+      if (pf[1] === 'w') h += '<span class="num">' + num + '.</span>';
+      else if (i === 0) h += '<span class="num">' + num + '…</span>';
+      h += '<span class="mv' + (i === chain.length - 1 ? ' cur' : '') + '">' + esc(nd.san) + (nd.nag && /[!?]/.test(nd.nag) ? esc(nd.nag) : '') + '</span> ';
+    });
+    if (S.wrong) h += '<span class="mv" style="color:var(--danger)">' + esc(S.wrong.san) + '?</span>';
+    $('moves').innerHTML = h || '<span>Начальная позиция</span>';
+    $('moves').scrollTop = 1e6;
+  }
+
+  function renderStats() {
+    rollDay();
+    var d = dueInfo();
+    $('stats').innerHTML = 'Сегодня: повторено <b>' + store.stats.reviewed + '</b> · ошибок <b>' + store.stats.errors +
+      '</b> · ждут повторения <b>' + d.due + '</b> · новых доступно <b>' + d.fresh + '</b>';
+    $('dueCount').textContent = (d.due + d.fresh) ? '(' + (d.due + d.fresh) + ')' : '';
+  }
+
+  function renderAll() { renderBoard(); renderSide(); renderStats(); }
+
+  // ---------- Библиотека ----------
+  function renderLibrary() {
+    var list = $('libList');
+    if (!courses.length) { list.innerHTML = '<div class="lib-empty">Курсов нет. Нажмите «＋ Импорт».</div>'; return; }
+    var h = '';
+    courses.forEach(function (c) {
+      var collapsed = store.collapsed[c.id];
+      var allSel = c.chapters.length && c.chapters.every(function (ch) { return store.selected[ch.id]; });
+      h += '<div class="course"><div class="course-head" data-course="' + c.id + '">' +
+        '<input type="checkbox" data-selcourse="' + c.id + '"' + (allSel ? ' checked' : '') + ' title="Отметить все главы">' +
+        '<span class="cname">' + (collapsed ? '▸ ' : '▾ ') + esc(c.name) + '</span><span class="cmeta">' + c.chapters.length + '</span>' +
+        '<button data-rename="' + c.id + '" title="Переименовать">✎</button><button data-del="' + c.id + '" title="Удалить курс">✕</button></div>';
+      if (!collapsed) {
+        h += '<div class="chapters">';
+        c.chapters.forEach(function (ch) {
+          var p = store.progress[ch.id] || {};
+          var lvl = p.clean ? 'l2' : (p.lesson || p.drill) ? 'l1' : '';
+          var dot = p.clean ? '●' : (p.lesson || p.drill) ? '◐' : '○';
+          var title = p.clean ? 'Закрепление пройдено без ошибок' : p.drill ? 'Закрепление пройдено с ошибками' : p.lesson ? 'Урок пройден' : 'Не начата';
+          var active = S && S.chapter === ch ? ' active' : '';
+          h += '<div class="chapter' + active + '" data-ch="' + ch.id + '">' +
+            '<input type="checkbox" data-sel="' + ch.id + '"' + (store.selected[ch.id] ? ' checked' : '') + '>' +
+            '<span class="dot ' + lvl + '" title="' + title + '">' + dot + '</span>' +
+            '<span class="cn" title="' + esc(ch.name) + '">' + esc(ch.name) + '</span>' +
+            (p.attempts && p.lastErrors ? '<span class="err" title="Ошибок в последней попытке">' + p.lastErrors + '</span>' : '') +
+            (ch.warnings.length ? '<span class="err" title="' + esc(ch.warnings.join('\n')) + '">⚠</span>' : '') + '</div>';
+        });
+        h += '</div>';
+      }
+      h += '</div>';
+    });
+    list.innerHTML = h;
+  }
+
+  $('libList').addEventListener('click', function (e) {
+    var t = e.target, d;
+    if ((d = t.getAttribute('data-sel'))) { if (t.checked) store.selected[d] = true; else delete store.selected[d]; save(); renderLibrary(); renderStats(); return; }
+    if ((d = t.getAttribute('data-selcourse'))) {
+      var c = courses.filter(function (x) { return x.id === d; })[0];
+      c.chapters.forEach(function (ch) { if (t.checked) store.selected[ch.id] = true; else delete store.selected[ch.id]; });
+      save(); renderLibrary(); renderStats(); return;
+    }
+    if ((d = t.getAttribute('data-rename'))) { renameCourse(d); return; }
+    if ((d = t.getAttribute('data-del'))) { deleteCourse(d); return; }
+    var row = t.closest('.chapter');
+    if (row) { startChapter(chapterById(row.getAttribute('data-ch')), 'lesson'); return; }
+    var head = t.closest('.course-head');
+    if (head) { var id = head.getAttribute('data-course'); store.collapsed[id] = !store.collapsed[id]; save(); renderLibrary(); }
+  });
+
+  // Окно вопроса внутри страницы (confirm/prompt работают не везде)
+  function ask(opts) {
+    return new Promise(function (resolve) {
+      var dlg = $('dlgAsk'), inp = $('askInput'), area = $('askArea'), ok = $('askOk'), cancel = $('askCancel');
+      $('askTitle').textContent = opts.title || '';
+      $('askText').textContent = opts.text || '';
+      inp.classList.toggle('hidden', opts.input == null); inp.value = opts.input || '';
+      area.classList.toggle('hidden', opts.area == null); area.value = opts.area || '';
+      ok.textContent = opts.ok || 'OK'; ok.className = opts.danger ? 'danger' : 'primary';
+      cancel.classList.toggle('hidden', !!opts.noCancel);
+      function done(v) { ok.onclick = cancel.onclick = null; dlg.onclose = null; if (dlg.open) dlg.close(); resolve(v); }
+      ok.onclick = function () { done(opts.input != null ? inp.value : true); };
+      cancel.onclick = function () { done(null); };
+      dlg.onclose = function () { done(null); };
+      dlg.showModal();
+      if (opts.input != null) { inp.focus(); inp.select(); }
+      if (opts.area != null) { area.focus(); area.select(); }
+    });
+  }
+
+  function renameCourse(id) {
+    var c = store.courses.filter(function (x) { return x.id === id; })[0]; if (!c) return;
+    ask({ title: 'Переименовать курс', input: c.name, ok: 'Сохранить' }).then(function (name) {
+      if (name && name.trim()) { c.name = name.trim(); save(); refreshCourses(); }
+    });
+  }
+  function deleteCourse(id) {
+    var c = store.courses.filter(function (x) { return x.id === id; })[0]; if (!c) return;
+    ask({ title: 'Удалить курс?', text: '«' + c.name + '» и прогресс по нему будут удалены.', ok: 'Удалить', danger: true })
+      .then(function (yes) { if (yes) doDeleteCourse(id); });
+  }
+  function doDeleteCourse(id) {
+    var c = store.courses.filter(function (x) { return x.id === id; })[0];
+    store.courses = store.courses.filter(function (x) { return x.id !== id; });
+    dropCourseData(id);
+    if (c && c.builtin) { store.removedBuiltins = store.removedBuiltins || {}; store.removedBuiltins[id] = true; }
+    save(); refreshCourses(true);
+  }
+  function refreshCourses(restart) {
+    var curId = S && S.chapter ? S.chapter.id : null, mode = S ? S.mode : 'lesson';
+    rebuild();
+    var ch = curId && chapterById(curId);
+    if (!ch || restart) { ch = allChapters()[0]; mode = 'lesson'; }
+    if (ch && (restart || !S || S.chapter !== ch)) {
+      if (S && S.chapter && ch.id === S.chapter.id && !restart) { S.chapter = ch; renderLibrary(); renderAll(); }
+      else startChapter(ch, mode === 'review' || mode === 'mix' ? 'lesson' : mode);
+    } else if (!ch) { token++; S = null; renderLibrary(); renderAll(); }
+    renderLibrary();
+  }
+
+  // ---------- Импорт ----------
+  function addCourse(name, pgn) {
+    var chapters = Core.parsePGN(pgn, name);
+    if (!chapters.length) { toast('В тексте не найдено ни одной партии.'); return false; }
+    var studies = chapters.map(function (c) { return c.headers.StudyName; }).filter(Boolean);
+    var finalName = name || studies[0] || chapters[0].headers.Event || 'Мой курс';
+    var id = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    store.courses.push({ id: id, name: finalName, pgn: pgn, added: Date.now() });
+    save(); rebuild();
+    var warn = chapters.reduce(function (a, c) { return a + c.warnings.length; }, 0);
+    toast('Добавлен курс «' + finalName + '»: глав ' + chapters.length + (warn ? ', предупреждений ' + warn + ' (значок ⚠)' : ''));
+    startChapter(chapterById(id + ':0'), 'lesson');
+    return true;
+  }
+  $('impFiles').addEventListener('change', function (e) {
+    var files = Array.prototype.slice.call(e.target.files);
+    files.forEach(function (f) {
+      var rd = new FileReader();
+      rd.onload = function () {
+        var text = String(rd.result), chs = Core.parsePGN(text, '');
+        var study = chs.length && chs[0].headers.StudyName;
+        if (addCourse(study || f.name.replace(/\.(pgn|txt)$/i, ''), text)) $('dlgImport').close();
+      };
+      rd.readAsText(f, 'utf-8');
+    });
+    e.target.value = '';
+  });
+  $('impTextBtn').addEventListener('click', function () {
+    var text = $('impText').value.trim(); if (!text) { toast('Вставьте текст PGN.'); return; }
+    if (addCourse($('impName').value.trim(), text)) { $('impText').value = ''; $('impName').value = ''; $('dlgImport').close(); }
+  });
+  $('impUrlBtn').addEventListener('click', function () {
+    var m = /lichess\.org\/study\/([A-Za-z0-9]{8})/.exec($('impUrl').value);
+    if (!m) { toast('Нужна ссылка вида https://lichess.org/study/abcd1234'); return; }
+    var btn = $('impUrlBtn'); btn.disabled = true; btn.textContent = 'Загрузка…';
+    fetch('https://lichess.org/api/study/' + m[1] + '.pgn?comments=true&variations=true&clocks=false')
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+      .then(function (text) {
+        if (/^\s*</.test(text)) throw new Error('html');
+        if (addCourse('', text)) { $('impUrl').value = ''; $('dlgImport').close(); }
+      })
+      .catch(function () { toast('Не удалось загрузить: студия закрыта для скачивания или нет интернета.'); })
+      .then(function () { btn.disabled = false; btn.textContent = 'Загрузить'; });
+  });
+  $('impClose').addEventListener('click', function () { $('dlgImport').close(); });
+  $('btnImport').addEventListener('click', function () { $('dlgImport').showModal(); });
+
+  // ---------- Настройки ----------
+  $('btnSettings').addEventListener('click', function () {
+    var s = settings();
+    $('setOpp').value = s.opp; $('setSide').value = s.side; $('setNew').value = s.newPerDay; $('setDelay').value = s.delay;
+    $('dlgSettings').showModal();
+  });
+  $('setClose').addEventListener('click', function () {
+    var s = settings();
+    s.opp = $('setOpp').value; s.side = $('setSide').value;
+    s.newPerDay = Math.max(0, parseInt($('setNew').value, 10) || 0);
+    s.delay = Math.max(0, parseInt($('setDelay').value, 10) || 0);
+    save(); renderAll(); $('dlgSettings').close();
+  });
+  $('btnExport').addEventListener('click', function () {
+    var json = JSON.stringify(store);
+    try {
+      var blob = new Blob([json], { type: 'application/json' });
+      var a = document.createElement('a'), d = new Date();
+      a.href = URL.createObjectURL(blob);
+      a.download = 'debut-trainer-' + d.toISOString().slice(0, 10) + '.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+    } catch (e) { /* скачивание запрещено — остаётся копирование */ }
+    $('dlgSettings').close();
+    ask({ title: 'Экспорт данных', text: 'Файл .json скачивается. Если скачивание не началось, скопируйте текст ниже и сохраните его в файл .json.',
+      area: json, ok: 'Скопировать', noCancel: false }).then(function (yes) {
+      if (!yes) return;
+      try { navigator.clipboard.writeText(json).then(function () { toast('Скопировано.'); }, function () { toast('Выделите текст и нажмите Ctrl+C.'); }); }
+      catch (e) { toast('Выделите текст и нажмите Ctrl+C.'); }
+    });
+  });
+  $('btnImportData').addEventListener('click', function () { $('dataFile').click(); });
+  $('dataFile').addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function () {
+      try {
+        var d = JSON.parse(String(rd.result));
+        if (!d || !Array.isArray(d.courses)) throw new Error('format');
+        $('dlgSettings').close();
+        ask({ title: 'Заменить данные?', text: 'Все текущие курсы и прогресс заменятся данными из файла (курсов: ' + d.courses.length + ').', ok: 'Заменить', danger: true })
+          .then(function (yes) {
+            if (!yes) return;
+            store = normalize(d); save(); applyTheme(); refreshCourses(true);
+            toast('Данные загружены: курсов ' + store.courses.length);
+          });
+      } catch (err) { toast('Это не файл данных тренажёра.'); }
+    };
+    rd.readAsText(f, 'utf-8'); e.target.value = '';
+  });
+  $('btnResetProgress').addEventListener('click', function () {
+    $('dlgSettings').close();
+    ask({ title: 'Сбросить прогресс?', text: 'Отметки глав и интервальное повторение обнулятся. Курсы останутся.', ok: 'Сбросить', danger: true })
+      .then(function (yes) {
+        if (!yes) return;
+        store.progress = {}; store.cards = {}; store.stats = defaults().stats; save(); renderLibrary(); renderAll();
+        toast('Прогресс сброшен.');
+      });
+  });
+
+  // ---------- Тема ----------
+  function applyTheme() {
+    var t = settings().theme;
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    else document.documentElement.removeAttribute('data-theme');
+    $('btnTheme').title = 'Тема: ' + ({ auto: 'как в системе', light: 'светлая', dark: 'тёмная' }[t] || 'как в системе');
+  }
+  $('btnTheme').addEventListener('click', function () {
+    var order = ['auto', 'light', 'dark'], s = settings();
+    s.theme = order[(order.indexOf(s.theme) + 1) % 3]; save(); applyTheme(); toast($('btnTheme').title);
+  });
+
+  // ---------- Кнопки и клавиши ----------
+  $('modeTabs').addEventListener('click', function (e) { var m = e.target.dataset && e.target.dataset.mode; if (m && S) startChapter(S.chapter, m); });
+  $('btnBack').addEventListener('click', back);
+  $('btnHint').addEventListener('click', hint);
+  $('btnRestart').addEventListener('click', function () { if (S && S.mode !== 'review') startChapter(S.chapter, S.mode); });
+  $('btnFlip').addEventListener('click', function () { flipped = !flipped; renderBoard(); });
+  $('btnNext').addEventListener('click', nextChapter);
+  $('btnReview').addEventListener('click', startReview);
+  $('btnMix').addEventListener('click', startMix);
+
+  function closeDrawer() { $('library').classList.remove('open'); }
+  $('btnMenu').addEventListener('click', function (e) { e.stopPropagation(); $('library').classList.toggle('open'); });
+  document.addEventListener('click', function (e) {
+    var lib = $('library');
+    if (lib.classList.contains('open') && !lib.contains(e.target) && e.target !== $('btnMenu')) closeDrawer();
+  });
+
+  function primaryAction() {
+    if (!S) return;
+    if (S.state === 'wrong') retry();
+    else if (S.state === 'review-ok') nextCard();
+    else if (S.state === 'done') { if (S.mode === 'mix') startMix(); else nextChapter(); }
+  }
+  document.addEventListener('keydown', function (e) {
+    if (document.querySelector('dialog[open]')) return;
+    var tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    var k = e.key.toLowerCase();
+    if (k === 'arrowleft') { back(); e.preventDefault(); }
+    else if (k === 'arrowright' || k === 'enter') { primaryAction(); e.preventDefault(); }
+    else if (k === 'f' || k === 'а') { flipped = !flipped; renderBoard(); }
+    else if (k === 'h' || k === 'р') hint();
+  });
+
+  // ---------- Запуск ----------
+  $('btnRestoreBuiltins').addEventListener('click', function () {
+    store.removedBuiltins = {}; ensureBuiltins(); save(); refreshCourses(); $('dlgSettings').close();
+    toast('Встроенные курсы на месте.');
+  });
+
+  ensureBuiltins(); save(); rebuild(); applyTheme();
+  var first = (store.last && chapterById(store.last.id)) || allChapters()[0];
+  if (first) startChapter(first, (store.last && chapterById(store.last.id) && store.last.mode) || 'lesson');
+  else { renderLibrary(); renderAll(); }
+})();
+
+</script>
+</body>
+</html>
