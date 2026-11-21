@@ -216,30 +216,15 @@ dialog label { display: block; margin-top: 10px; font-size: 13.5px; }
 .cc-label { font-size: 13px; font-weight: 600; }
 .cc-row { display: flex; gap: 6px; }
 .cc-row input { flex: 1; min-width: 0; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--panel); }
-.lib-continue.cc-b { background: #3b3935; color: #fff; }
 .cc-h { margin: 8px 0 0; font-size: 14px; }
-.cc-item { display: flex; flex-direction: column; gap: 3px; text-align: left; padding: 9px 12px; border-radius: 10px; }
-.cc-item.cc-bad { border-color: color-mix(in srgb, var(--danger) 55%, var(--border)); }
-.cc-line { font-weight: 600; font-size: 13px; line-height: 1.3; }
-.cc-desc { font-size: 12.5px; color: var(--muted); line-height: 1.35; }
-.cc-desc b { color: var(--text); }
-.cc-list { flex-basis: 100%; display: flex; flex-direction: column; gap: 4px; }
-.cc-head, .action-area .cc-mv { display: grid; grid-template-columns: 52px 36px minmax(50px, 1fr) 38px 92px; align-items: center; gap: 8px; }
-.cc-head { font-size: 11.5px; color: var(--muted); padding: 0 10px; }
-.action-area .cc-mv { flex: none; min-width: 0; padding: 6px 10px; text-align: left; }
-.cc-mv.course { border-color: var(--accent); }
-.cc-san { font-weight: 700; }
-.cc-n, .cc-pct { font-size: 12.5px; color: var(--muted); }
-.cc-bar { display: flex; height: 9px; border-radius: 999px; overflow: hidden; background: var(--border); }
-.cc-bar i { display: block; height: 100%; }
-.cc-bar i.w { background: #5d9b2c; } .cc-bar i.d { background: #a8a29a; } .cc-bar i.l { background: var(--danger); }
-.cc-tag { font-size: 12px; white-space: nowrap; }
-.cc-tag.ok { color: var(--accent); } .cc-tag.no { color: var(--danger); font-weight: 600; } .cc-tag.new { color: var(--warn); }
-.action-area .cc-lesson { flex-basis: 100%; }
-@media (max-width: 420px) {
-  .cc-head, .action-area .cc-mv { grid-template-columns: 46px 30px minmax(40px, 1fr) 34px 78px; gap: 6px; }
-  .cc-tag { font-size: 11px; }
-}
+.cc-sum { margin: 0; padding: 10px 12px 10px 28px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; font-size: 13.5px; line-height: 1.5; }
+.cc-sum li.cc-sub { list-style: none; margin-left: 4px; }
+.cc-ok { color: var(--accent); font-weight: 600; }
+.cc-no { color: var(--danger); font-weight: 600; }
+.cc-item { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 10px; background: var(--panel); border: 1px solid var(--border); }
+.cc-line { font-weight: 600; font-size: 13.5px; line-height: 1.3; }
+.cc-desc { font-size: 13px; color: var(--muted); line-height: 1.4; }
+.cc-train { align-self: flex-start; margin-top: 2px; }
 
 </style>
 </head>
@@ -1076,7 +1061,6 @@ if (typeof module !== 'undefined') module.exports = Core;
   }
 
   function userMove(uci) {
-    if (S && S.mode === 'explore') { exploreMove(uci); return; }
     if (!S || S.state !== 'student') return;
     var sets = moveSets();
     var hit = sets.ok.filter(function (c) { return c.uci === uci; })[0];
@@ -1120,7 +1104,7 @@ if (typeof module !== 'undefined') module.exports = Core;
   }
 
   function hint() {
-    if (!S || S.mode === 'explore') return;
+    if (!S) return;
     if (S.state === 'wrong') retry();
     if (S.state !== 'student') return;
     if (S.hint === 0) registerError();
@@ -1131,7 +1115,6 @@ if (typeof module !== 'undefined') module.exports = Core;
 
   function back() {
     if (!S || S.mode === 'review') return;
-    if (S.mode === 'explore') { if (S.node.parent) { S.node = S.node.parent; sel = null; renderAll(); } return; }
     if (S.state === 'wrong') { retry(); return; }
     token++;
     var n = S.node.parent;
@@ -1143,7 +1126,6 @@ if (typeof module !== 'undefined') module.exports = Core;
   }
 
   function nextChapter() {
-    if (S && S.mode === 'explore') { if (S.node.children[0]) { S.node = S.node.children[0]; sel = null; renderAll(); } return; }
     var all = allChapters(); if (!all.length) return;
     if (S && S.mode === 'mix') { startMix(); return; }
     if (S && S.mode === 'review') { nextCard(); return; }
@@ -1291,7 +1273,6 @@ if (typeof module !== 'undefined') module.exports = Core;
     // Стрелки и подсветка полей
     var shapes = [];
     if (S && S.mode === 'lesson' && !S.wrong && S.node && S.node.shapes) shapes = shapes.concat(S.node.shapes);
-    if (S && S.mode === 'explore') shapes = shapes.concat(exploreShapes());
     if (showHintArrow && hintFrom) shapes.push({ color: 'B', orig: hintFrom, dest: hintTo });
     if (shapes.length) html += svgShapes(shapes);
     boardEl.innerHTML = html;
@@ -1400,7 +1381,6 @@ if (typeof module !== 'undefined') module.exports = Core;
       status.innerHTML = ''; act.innerHTML = ''; tabs.classList.add('hidden'); $('moves').innerHTML = '';
       return;
     }
-    if (S.mode === 'explore') { renderExploreSide(); return; }
     var side = SIDE_NAME[S.chapter.orientation];
     tabs.classList.toggle('hidden', S.mode === 'review' || S.mode === 'mix');
     Array.prototype.forEach.call(tabs.children, function (b) { b.classList.toggle('on', b.dataset.mode === S.mode); });
@@ -1469,7 +1449,6 @@ if (typeof module !== 'undefined') module.exports = Core;
     $('btnBack').disabled = S.mode === 'review' || S.node === S.chapter.root;
     $('btnHint').disabled = !(S.state === 'student' || S.state === 'wrong');
     $('btnRestart').disabled = S.mode === 'review';
-    $('btnNext').disabled = false;
     $('btnNext').textContent = S.mode === 'review' ? 'Пропустить →' : S.mode === 'mix' ? 'Другая глава →' : 'Дальше →';
 
     renderMoves();
@@ -1604,7 +1583,7 @@ if (typeof module !== 'undefined') module.exports = Core;
     var t = e.target.closest('button'); if (!t) return;
     var d;
     if ((d = t.getAttribute('data-cc'))) { ccClick(d); return; }
-    if ((d = t.getAttribute('data-ccp'))) { ccProblemClick(d); return; }
+    if ((d = t.getAttribute('data-cct'))) { ccTrainClick(d); return; }
     if ((d = t.getAttribute('data-tab'))) { store.libTab = d; save(); renderLibrary(); return; }
     if ((d = t.getAttribute('data-star')) != null) { store.libStar = d === '1'; save(); renderLibrary(); return; }
     if ((d = t.getAttribute('data-rename'))) { renameCourse(d); return; }
@@ -1839,7 +1818,6 @@ if (typeof module !== 'undefined') module.exports = Core;
           ccPrune(roots.w); ccPrune(roots.b);
           cc = { nick: nick, updated: Date.now(), total: total, months: urls.length, w: roots.w, b: roots.b };
           ccTrees = null; ccProbs = null; ccSave();
-          if (S && S.mode === 'explore') startExplore(S.chapter.orientation);
           toast('Загружено партий: ' + total);
         });
       })
@@ -1897,24 +1875,60 @@ if (typeof module !== 'undefined') module.exports = Core;
     return chain.map(function (nd, i) { return (i % 2 === 0 ? (i / 2 + 1) + '.' : '') + nd.san; }).join(' ') || 'Первый ход';
   }
   function ccFirst(o) { var k = Object.keys(o); return k.length ? o[k[0]] : ''; }
-  function ccProblems(side) {
-    var map = ccCourseMap(side), mine = [], opp = [];
-    (function walk(n) {
-      var e = map[fenKey(n.fen)];
-      if (e) {
-        var hasMine = Object.keys(e.mine).length, hasOpp = Object.keys(e.opp).length;
-        n.children.forEach(function (c) {
-          if (c.n < 3) return;
-          if (n.turn === side && hasMine && !e.mine[c.uci]) mine.push({ node: c, expected: ccFirst(e.mine) });
-          if (n.turn !== side && hasOpp && !e.opp[c.uci]) opp.push({ node: c });
-        });
-      }
-      n.children.forEach(walk);
-    })(ccRoot(side));
-    function by(a, b) { return b.node.n - a.node.n; }
-    return { mine: mine.sort(by).slice(0, 8), opp: opp.sort(by).slice(0, 8) };
+  // Ваши частые уходы от курса. Выбор первого хода (1.d4 вместо 1.e4) — это выбор дебюта, не ошибка: его не считаем.
+  function ccTodo() {
+    var out = [];
+    ['w', 'b'].forEach(function (side) {
+      var map = ccCourseMap(side), root = ccRoot(side);
+      (function walk(n, depth) {
+        var e = map[fenKey(n.fen)];
+        if (e && n.turn === side && depth >= (side === 'w' ? 2 : 3) && Object.keys(e.mine).length) {
+          var train = ccFindTraining(e, side, n.fen);
+          var wrong = n.children.filter(function (c) { return c.n >= 3 && !e.mine[c.uci]; });
+          if (wrong.length && train) out.push({ side: side, pos: n, moves: wrong, n: wrong.reduce(function (a, c) { return a + c.n; }, 0),
+            expected: ccFirst(e.mine), ch: train.ch, at: train.node });
+        }
+        n.children.forEach(function (c) { walk(c, depth + 1); });
+      })(root, 0);
+    });
+    return out.sort(function (a, b) { return b.n - a.n; }).slice(0, 5);
   }
-
+  // Глава курса и позиция в ней, с которой начать тренировку
+  function ccFindTraining(e, side, fen) {
+    var k = fenKey(fen), sv = settings().side;
+    for (var i = 0; i < e.chapters.length; i++) {
+      var found = null;
+      (function walk(n) {
+        if (found) return;
+        if (n.turn === side && fenKey(n.fen) === k && n.children.length) { found = n; return; }
+        (n.turn === side ? Core.correctChildren(n, sv) : n.children).forEach(walk);
+      })(e.chapters[i].root);
+      if (found) return { ch: e.chapters[i], node: found };
+    }
+    return null;
+  }
+  function ccShare(c, parent) { return Math.round(c.n / parent.n * 100) + '%'; }
+  function ccMoveText(c, side) { return (side === 'w' ? '1.' : '1...') + c.san; }
+  // «Как вы играете»: первые ходы и сверка с курсом
+  function ccSummary() {
+    var h = '<ul class="cc-sum">';
+    var rw = ccRoot('w'), ew = ccCourseMap('w')[fenKey(rw.fen)], tw = rw.children.slice(0, 2);
+    if (tw.length) {
+      h += '<li><b>Белыми</b> (' + plur(rw.n, 'партия', 'партии', 'партий') + ', очки ' + ccPct(rw) + '%): вы начинаете ' +
+        tw.map(function (c) { return '<b>' + ccMoveText(c, 'w') + '</b> (' + ccShare(c, rw) + ')'; }).join(' или ') + '.' +
+        (ew && ew.mine[tw[0].uci] ? ' <span class="cc-ok">✓ как в курсе</span>' : '') + '</li>';
+    }
+    var rb = ccRoot('b'), mb = ccCourseMap('b');
+    h += '<li><b>Чёрными</b> (' + plur(rb.n, 'партия', 'партии', 'партий') + ', очки ' + ccPct(rb) + '%):</li>';
+    rb.children.slice(0, 2).forEach(function (o) {
+      var r = o.children[0]; if (!r) return;
+      var e = mb[fenKey(o.fen)], inCourse = e && e.mine[r.uci], exp = e && ccFirst(e.mine);
+      h += '<li class="cc-sub">на <b>' + ccMoveText(o, 'w') + '</b> вы отвечаете <b>' + ccMoveText(r, 'b') + '</b> (' + ccShare(r, o) + ').' +
+        (inCourse ? ' <span class="cc-ok">✓ как в курсе</span>' : exp ? ' <span class="cc-no">В курсе: ' + ccMoveText({ san: exp }, 'b') + '</span>' : '') + '</li>';
+    });
+    return h + '</ul>';
+  }
+  var ccTodoList = [];
   function ccLibHtml() {
     var nick = (ccBusy && ccPending) || (cc && cc.nick) || '';
     var h = '<div class="cc-box"><label class="cc-label" for="ccNick">Ваш ник на chess.com</label>' +
@@ -1923,142 +1937,48 @@ if (typeof module !== 'undefined') module.exports = Core;
     if (ccBusy) h += '<p class="lib-note">⏳ ' + esc(ccMsg) + '</p>';
     if (!cc) {
       return h + '<p class="lib-note">Тренажёр скачает ваши партии с chess.com (рапид и блиц за последний год). ' +
-        'Потом он покажет, как вы разыгрываете дебюты: какие ходы делаете, сколько очков набираете и где уходите от курса.</p></div>';
+        'Потом он покажет, как вы играете дебюты, и даст потренировать места, где вы ошибаетесь.</p></div>';
     }
     var d = new Date(cc.updated), pad = function (x) { return (x < 10 ? '0' : '') + x; };
-    h += '<p class="lib-note">Партий: <b>' + cc.total + '</b> за ' + cc.months + ' мес. · обновлено ' +
+    h += '<p class="lib-note">' + plur(cc.total, 'партия', 'партии', 'партий') + ' за ' + cc.months + ' мес. · обновлено ' +
       pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + ' в ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + '</p></div>';
-    ccProbs = { w: ccProblems('w'), b: ccProblems('b') };
-    ['w', 'b'].forEach(function (side) {
-      var r = ccRoot(side);
-      h += '<button class="lib-continue cc-open cc-' + side + '" data-cc="' + side + '"><span class="lc-kicker">Дерево ходов из ваших партий</span>' +
-        '<span class="lc-title">Мои партии ' + (side === 'w' ? 'белыми' : 'чёрными') + '</span>' +
-        '<span class="lc-sub">' + plur(r.n, 'партия', 'партии', 'партий') + ' · ваши очки ' + ccPct(r) + '%</span><span class="lc-arrow">→</span></button>';
+
+    h += '<h4 class="cc-h">Как вы играете</h4>' + ccSummary();
+
+    ccTodoList = ccTodo();
+    h += '<h4 class="cc-h">Что потренировать</h4>';
+    if (!ccTodoList.length) return h + '<p class="lib-note">В дебюте вы играете по курсу. Так держать!</p>';
+    h += '<p class="lib-note">Здесь вы чаще всего уходите от курса. Нажмите «Тренировать»: урок откроется прямо на этой позиции.</p>';
+    ccTodoList.forEach(function (t, i) {
+      var mv = t.moves.slice(0, 3).map(function (c) { return '<b class="cc-no">' + esc(c.san) + '</b> (' + times(c.n) + ', очки ' + ccPct(c) + '%)'; });
+      h += '<div class="cc-item"><span class="cc-line">' + (t.side === 'w' ? 'Белыми' : 'Чёрными') + ', после ' + esc(ccLine(t.pos)) + '</span>' +
+        '<span class="cc-desc">Вы играете ' + mv.join(', ') + '. ' +
+        'По курсу: <b class="cc-ok">' + esc(t.expected) + '</b>.</span>' +
+        '<button class="primary cc-train" data-cct="' + i + '">Тренировать</button></div>';
     });
-    function item(side, kind, i, p) {
-      var n = p.node, text = kind === 'mine'
-        ? 'Вы сыграли <b>' + esc(n.san) + '</b> — ' + times(n.n) + ', очки ' + ccPct(n) + '%. По курсу: <b>' + esc(p.expected) + '</b>.'
-        : 'Соперник сыграл <b>' + esc(n.san) + '</b> — ' + times(n.n) + ', ваши очки ' + ccPct(n) + '%. В курсе этого хода нет.';
-      return '<button class="cc-item ' + (ccPct(n) < 45 ? 'cc-bad' : '') + '" data-ccp="' + side + ':' + kind + ':' + i + '">' +
-        '<span class="cc-line">' + (side === 'w' ? '♔ ' : '♚ ') + esc(ccLine(n.parent)) + '</span><span class="cc-desc">' + text + '</span></button>';
-    }
-    var mine = [], opp = [];
-    ['w', 'b'].forEach(function (side) {
-      ccProbs[side].mine.forEach(function (p, i) { mine.push({ side: side, i: i, p: p }); });
-      ccProbs[side].opp.forEach(function (p, i) { opp.push({ side: side, i: i, p: p }); });
-    });
-    var by = function (a, b) { return b.p.node.n - a.p.node.n; };
-    h += '<h4 class="cc-h">Где вы уходите от курса</h4>';
-    h += mine.length ? mine.sort(by).slice(0, 10).map(function (x) { return item(x.side, 'mine', x.i, x.p); }).join('')
-      : '<p class="lib-note">Вы играете по курсу. Так держать!</p>';
-    h += '<h4 class="cc-h">Куда вас уводят соперники</h4>';
-    h += opp.length ? opp.sort(by).slice(0, 10).map(function (x) { return item(x.side, 'opp', x.i, x.p); }).join('')
-      : '<p class="lib-note">Соперники редко уходят из курса.</p>';
-    h += '<p class="lib-note">Нажмите на строку: позиция откроется на доске. Красная рамка — очки ниже 45%.</p>';
     return h;
   }
   function ccClick(d) {
-    if (d === 'load') { var inp = $('ccNick'); ccFetch(inp ? inp.value : ''); return; }
-    if (d === 'w' || d === 'b') startExplore(d);
+    if (d === 'load') { var inp = $('ccNick'); ccFetch(inp ? inp.value : ''); }
   }
-  function ccProblemClick(d) {
-    var a = d.split(':'), list = ccProbs && ccProbs[a[0]] && ccProbs[a[0]][a[1]], p = list && list[+a[2]];
-    if (p) startExplore(a[0], p.node.parent);
+  // Тренировка: урок главы курса сразу с позиции, где вы ошибаетесь
+  function ccTrainClick(i) {
+    var t = ccTodoList[+i]; if (!t) return;
+    startChapter(t.ch, 'lesson');
+    token++;
+    S.node = t.at; S.state = 'student'; S.wrong = null; S.hint = 0; sel = null;
+    S.msgs = [{ text: 'В ваших партиях здесь вы обычно играли ' + t.moves[0].san + '. Найдите ход по курсу.' }];
+    renderAll();
   }
   $('libList').addEventListener('keydown', function (e) {
     if (e.target.id === 'ccNick' && e.key === 'Enter') { e.preventDefault(); ccFetch(e.target.value); }
   });
-
-  // Просмотр дерева на доске
-  function startExplore(side, node) {
-    if (!cc) return;
-    token++;
-    var root = ccRoot(side);
-    var chapter = { id: 'cc-' + side, name: 'chess.com', orientation: side, headers: {}, warnings: [], root: root,
-      course: { id: 'chesscom', name: 'chess.com' } };
-    S = { mode: 'explore', chapter: chapter, node: node || root, errors: 0, state: 'student', wrong: null, hint: 0, msgs: [] };
-    sel = null; showHintArrow = false; flipped = false;
-    closeDrawer(); renderLibrary(); renderAll();
-  }
-  function exploreMove(uci) {
-    var c = S.node.children.filter(function (x) { return x.uci === uci; })[0];
-    if (!c) {
-      var chess = new Chess(S.node.fen);
-      var mv = chess.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci[4] || 'q' });
-      if (!mv) return;
-      var fen = chess.fen();
-      c = { san: mv.san, uci: uci, fen: fen, turn: fen.split(' ')[1], parent: S.node, children: [], w: 0, d: 0, l: 0, n: 0 };
-    }
-    S.node = c; sel = null; renderAll();
-  }
-  function exploreShapes() {
-    var side = S.chapter.orientation, e = ccCourseMap(side)[fenKey(S.node.fen)], top = S.node.children[0], out = [];
-    if (S.node.turn === side) {
-      if (e) Object.keys(e.mine).forEach(function (u) { out.push({ color: 'G', orig: u.slice(0, 2), dest: u.slice(2, 4) }); });
-      if (top && e && Object.keys(e.mine).length && !e.mine[top.uci]) out.push({ color: 'R', orig: top.uci.slice(0, 2), dest: top.uci.slice(2, 4) });
-      else if (top && !(e && e.mine[top.uci])) out.push({ color: 'B', orig: top.uci.slice(0, 2), dest: top.uci.slice(2, 4) });
-    } else if (top) out.push({ color: 'Y', orig: top.uci.slice(0, 2), dest: top.uci.slice(2, 4) });
-    return out;
-  }
-  function renderExploreSide() {
-    var side = S.chapter.orientation, n = S.node, root = S.chapter.root, my = n.turn === side;
-    var e = ccCourseMap(side)[fenKey(n.fen)], hasMine = e && Object.keys(e.mine).length, hasOpp = e && Object.keys(e.opp).length;
-    $('modeTabs').classList.add('hidden');
-    $('chTitle').textContent = 'Мои партии на chess.com';
-    $('chSub').textContent = 'Вы играете ' + (side === 'w' ? 'белыми' : 'чёрными') + ' · ' + cc.nick + ' · ' + plur(root.n, 'партия', 'партии', 'партий');
-    var h = n.n
-      ? '<p>Эта позиция была в ваших партиях <b>' + times(n.n) + '</b>. Ваши очки: <b>' + ccPct(n) + '%</b> (побед ' + n.w + ', ничьих ' + n.d + ', поражений ' + n.l + ').</p>'
-      : '<p>Этой позиции нет в ваших партиях (учитываются позиции, которые встречались хотя бы 2 раза).</p>';
-    var top = n.children[0];
-    if (!e) h += '<p>Этой позиции нет в курсе.</p>';
-    else if (my && hasMine) {
-      h += '<p class="fb">По курсу: <b>' + esc(Object.keys(e.mine).map(function (u) { return e.mine[u]; }).join(', ')) + '</b> (зелёная стрелка).</p>';
-      if (top && !e.mine[top.uci]) h += '<p class="bad">А вы чаще играете <b>' + esc(top.san) + '</b> (красная стрелка).</p>';
-    } else if (my) h += '<p>Курс здесь заканчивается.</p>';
-    else h += '<p>Позиция есть в курсе. Ниже — ответы ваших соперников.</p>';
-    $('bubble').innerHTML = h;
-    $('status').innerHTML = '<span class="turnpc pc ' + pcls(n.turn, 'k') + '"></span><div>' + (my ? 'Ваш ход' : 'Ход соперника') +
-      '<small>Нажмите на ход в списке или сделайте ход на доске</small></div>';
-
-    var act = $('actionArea');
-    var l = '<div class="cc-list">';
-    if (n.children.length) {
-      l += '<div class="cc-head"><span>Ход</span><span>Раз</span><span>Победы / ничьи / поражения</span><span>Очки</span><span></span></div>';
-      n.children.forEach(function (c) {
-        var tag = '', cls = '';
-        if (my && hasMine) { if (e.mine[c.uci]) { tag = '<span class="cc-tag ok">✓ курс</span>'; cls = ' course'; } else tag = '<span class="cc-tag no">✗ не по курсу</span>'; }
-        else if (!my && hasOpp) tag = e.opp[c.uci] ? '<span class="cc-tag ok">✓ в курсе</span>' : '<span class="cc-tag new">нет в курсе</span>';
-        var w = c.n ? c.w / c.n * 100 : 0, d = c.n ? c.d / c.n * 100 : 0;
-        l += '<button class="cc-mv' + cls + '" data-uci="' + c.uci + '"><span class="cc-san">' + esc(c.san) + '</span><span class="cc-n">' + c.n + '</span>' +
-          '<span class="cc-bar"><i class="w" style="width:' + w + '%"></i><i class="d" style="width:' + d + '%"></i><i class="l" style="width:' + (100 - w - d) + '%"></i></span>' +
-          '<span class="cc-pct">' + ccPct(c) + '%</span>' + tag + '</button>';
-      });
-    } else l += '<p class="lib-note">Дальше ваши партии расходятся: каждое продолжение встречалось только 1 раз.</p>';
-    l += '</div>';
-    act.innerHTML = l;
-    Array.prototype.forEach.call(act.querySelectorAll('.cc-mv'), function (b) {
-      b.onclick = function () { exploreMove(b.getAttribute('data-uci')); };
-    });
-    if (e && e.chapters.length) {
-      var ch = e.chapters[0], b = document.createElement('button');
-      b.className = 'cc-lesson'; b.textContent = 'Открыть урок: ' + parseName(ch.name).title;
-      b.onclick = function () { startChapter(ch, 'lesson'); };
-      act.appendChild(b);
-    }
-    $('btnBack').disabled = !n.parent;
-    $('btnHint').disabled = true;
-    $('btnRestart').disabled = !n.parent;
-    $('btnNext').textContent = 'Частый ход →';
-    $('btnNext').disabled = !n.children.length;
-    renderMoves();
-  }
 
   // ---------- Кнопки и клавиши ----------
   $('modeTabs').addEventListener('click', function (e) { var m = e.target.dataset && e.target.dataset.mode; if (m && S) startChapter(S.chapter, m); });
   $('btnBack').addEventListener('click', back);
   $('btnHint').addEventListener('click', hint);
   $('btnRestart').addEventListener('click', function () {
-    if (S && S.mode === 'explore') { S.node = S.chapter.root; sel = null; renderAll(); return; }
     if (S && S.mode !== 'review') startChapter(S.chapter, S.mode);
   });
   $('btnFlip').addEventListener('click', function () { flipped = !flipped; renderBoard(); });
@@ -2079,7 +1999,6 @@ if (typeof module !== 'undefined') module.exports = Core;
     if (S.state === 'wrong') retry();
     else if (S.state === 'review-ok') nextCard();
     else if (S.state === 'done') { if (S.mode === 'mix') startMix(); else nextChapter(); }
-    else if (S.mode === 'explore') nextChapter();
   }
   document.addEventListener('keydown', function (e) {
     if (document.querySelector('dialog[open]')) return;
