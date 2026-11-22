@@ -299,6 +299,65 @@ body.at-home .layout { min-height: 0; }
 .ch-name { display: block; }
 body.drawer-open .lib-tabs { display: none; }
 
+/* Разбор партий и задачи */
+.work-grid .extra.big { padding: 18px; border-color: color-mix(in srgb, var(--accent) 50%, var(--border)); }
+.work-grid .extra.big b { font-size: 17px; }
+.pz-badge { display: inline-block; min-width: 22px; padding: 1px 7px; border-radius: 999px; background: var(--danger); color: #fff; font-size: 12.5px; text-align: center; }
+.an-nick { max-width: 460px; margin-bottom: 10px; }
+.an-msg { color: var(--muted); margin: 4px 0 10px; }
+.an-bad { color: var(--danger); font-weight: 600; }
+.an-good { color: var(--accent); font-weight: 600; }
+.gp-item.an-win .gp-title { color: var(--accent); }
+.gp-item.an-loss .gp-title { color: var(--danger); }
+.an-h1 { font-size: 22px; }
+.an-wrap { display: flex; gap: 22px; align-items: flex-start; flex-wrap: wrap; }
+.an-left { width: min(480px, 100%); flex: none; display: flex; flex-direction: column; gap: 10px; }
+.an-right { flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 12px; }
+.an-board { display: grid; grid-template-columns: repeat(8, 1fr); aspect-ratio: 1; width: 100%; border-radius: 6px; overflow: hidden; box-shadow: var(--shadow); user-select: none; }
+.an-board .sq { position: relative; }
+.an-board.clickable .sq { cursor: pointer; }
+.an-board .coord { position: absolute; font-size: 10px; font-weight: 600; opacity: .7; z-index: 4; pointer-events: none; }
+.an-board .coord.r { top: 2px; left: 3px; }
+.an-board .coord.f { bottom: 1px; right: 3px; }
+.an-board .sq.l .coord { color: var(--dark); }
+.an-board .sq.d .coord { color: var(--light); }
+.an-nav { display: flex; gap: 6px; flex-wrap: wrap; }
+.an-nav button { flex: 1; min-width: 60px; }
+.an-graph { width: 100%; height: 60px; border-radius: 6px; overflow: hidden; }
+.an-graph .g-bg { fill: #3a3733; }
+.an-graph .g-w { fill: #f2efe9; }
+.an-graph .g-mid { stroke: #e0a84a; stroke-width: 1; opacity: .6; }
+.an-graph .g-cur { stroke: var(--accent); stroke-width: 2; }
+.an-box { padding: 14px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; gap: 8px; }
+.an-box .lp-bar, .an-bar { height: 8px; border-radius: 4px; background: var(--panel2); overflow: hidden; }
+.an-box .lp-bar i, .an-bar i { display: block; height: 100%; background: var(--accent); }
+.an-bar { max-width: 360px; margin-top: 10px; }
+.an-sum { display: flex; gap: 8px; flex-wrap: wrap; }
+.an-sum span { padding: 4px 10px; border-radius: 999px; font-weight: 700; font-size: 13.5px; border: 1px solid var(--border); background: var(--panel); }
+.s-bl { color: #d23c2a; }
+.s-mi { color: #e0861a; }
+.s-in { color: #b7a12a; }
+.an-jump { align-self: flex-start; font-weight: 600; border-color: #d23c2a; color: #d23c2a; }
+.an-comment { padding: 12px 14px; border-radius: 12px; background: var(--bubble); border: 1px solid var(--border); line-height: 1.5; }
+.an-comment.blunder { border-color: #d23c2a; background: color-mix(in srgb, #d23c2a 10%, var(--bubble)); }
+.an-comment.mistake { border-color: #e0861a; background: color-mix(in srgb, #e0861a 10%, var(--bubble)); }
+.an-comment.inacc { border-color: #b7a12a; }
+.an-comment.good { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bubble)); }
+.an-ev { color: var(--muted); font-size: 13px; }
+.an-moves { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; max-height: 300px; overflow-y: auto; padding: 8px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; }
+.an-no { color: var(--muted); font-size: 12.5px; margin-left: 4px; }
+.an-mv { padding: 2px 6px; font-size: 13.5px; border-color: transparent; background: transparent; font-family: Consolas, "Courier New", monospace; }
+.an-mv.mine { font-weight: 700; }
+.an-mv.blunder { color: #d23c2a; }
+.an-mv.mistake { color: #e0861a; }
+.an-mv.inacc { color: #b7a12a; }
+.an-mv.on { background: var(--accent); color: var(--accent-text); }
+.pz-stats { display: flex; gap: 12px; flex-wrap: wrap; margin: 6px 0 14px; }
+.pz-stats div { padding: 12px 18px; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; min-width: 110px; }
+.pz-stats b { font-size: 26px; }
+.pz-stats span { color: var(--muted); font-size: 13px; }
+.pz-how { color: var(--muted); font-size: 13px; margin: 0; }
+
 </style>
 </head>
 <body>
@@ -2313,7 +2372,9 @@ if (typeof module !== 'undefined') module.exports = Core;
   function renderHome() {
     var el = $('home'); if (!el) return;
     var g = homeGroup && groupByKey(homeGroup);
-    el.innerHTML = homeGroup === 'traps' ? trapsPageHtml() : g ? groupPageHtml(g) : homeListHtml();
+    var gid = /^game:/.test(homeGroup || '') ? homeGroup.slice(5) : null, game = gid && gameById(gid);
+    el.innerHTML = homeGroup === 'traps' ? trapsPageHtml() : homeGroup === 'games' ? gamesPageHtml() : homeGroup === 'puzzles' ? puzzlesPageHtml() :
+      homeGroup === 'puzzle' ? puzzleHtml() : game ? gamePageHtml(game) : g ? groupPageHtml(g) : homeListHtml();
   }
   function homeListHtml() {
     var h = '<div class="home-wrap"><h1 class="home-h1">Выберите дебют</h1>' +
@@ -2324,6 +2385,10 @@ if (typeof module !== 'undefined') module.exports = Core;
       h += '<button class="home-resume" data-start="' + lastCh.id + '"><span class="hr-k">Продолжить</span><span class="hr-t">' +
         esc(groupName(lastCh)) + ' — ' + esc(pl.sub || pl.title) + '</span><span class="hr-a">→</span></button>';
     }
+    var pzN = pzDue().length;
+    h += '<h2 class="home-h2">Работа над ошибками</h2><div class="extra-grid work-grid">' +
+      '<button class="extra big" data-group="games"><span class="ex-ico">🔍</span><span><b>Разбор моих партий</b><br><small>Stockfish покажет, где вы зевнули</small></span></button>' +
+      '<button class="extra big" data-group="puzzles"><span class="ex-ico">🧩</span><span><b>Мои задачи' + (pzN ? ' <span class="pz-badge">' + pzN + '</span>' : '') + '</b><br><small>Позиции из ваших партий, где вы ошиблись</small></span></button></div>';
     courses.forEach(function (course) {
       var gs = courseGroups(course); if (!gs.length) return;
       h += '<h2 class="home-h2">' + esc(courseTitle(course)) + '</h2><div class="op-grid">';
@@ -2393,6 +2458,8 @@ if (typeof module !== 'undefined') module.exports = Core;
     return h + '</div>';
   }
   $('home').addEventListener('click', function (e) {
+    var t0 = e.target.closest('[data-gm],[data-game],[data-analyze],[data-ply],[data-pz],.an-board.clickable .sq');
+    if (t0 && homeExtraClick(t0)) return;
     var t = e.target.closest('[data-start],[data-drill],[data-group],[data-home],[data-drawer]'); if (!t) return;
     var d;
     if ((d = t.getAttribute('data-start'))) { hideHome(); startChapter(chapterById(d), 'lesson'); return; }
@@ -2405,9 +2472,390 @@ if (typeof module !== 'undefined') module.exports = Core;
     if (e.target.closest('[data-back-group]') && S && S.chapter.group) showHome(S.chapter.group.key);
   });
   $('home').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && e.target.id === 'gmNick') { gmFetch(e.target.value); return; }
     if (e.key !== 'Enter') return;
     var t = e.target.closest('[data-group]'); if (t) { e.stopPropagation(); showHome(t.getAttribute('data-group')); }
   });
+
+  // ---------- Stockfish в браузере ----------
+  var SF_BASE = 'https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/';
+  var eng = null, engReady = null, engQ = [], engJob = null;
+  function engStart() {
+    if (engReady) return engReady;
+    var asm = "importScripts('" + SF_BASE + "stockfish.js');";
+    engReady = fetch(SF_BASE + 'stockfish.wasm.js')
+      .then(function (r) { if (!r.ok) throw new Error('http'); return r.text(); })
+      .then(function (t) {
+        var key = 'locateFile:function(e){return e}';
+        if (typeof WebAssembly !== 'object' || t.indexOf(key) < 0) return asm;
+        return t.replace(key, 'locateFile:function(e){return "' + SF_BASE + '"+e}');
+      })
+      .catch(function () { return asm; })
+      .then(function (src) {
+        eng = new Worker(URL.createObjectURL(new Blob([src], { type: 'application/javascript' })));
+        eng.onmessage = engMsg;
+        eng.postMessage('uci'); eng.postMessage('setoption name Hash value 32'); eng.postMessage('isready');
+      });
+    return engReady;
+  }
+  function engMsg(e) {
+    var l = String(e.data), j = engJob; if (!j) return;
+    var m = /score (cp|mate) (-?\d+)(?! (?:lower|upper)bound).*? pv (.+)$/.exec(l);
+    if (m && / multipv 1 | depth /.test(l)) { j.kind = m[1]; j.val = +m[2]; j.pv = m[3].split(' '); }
+    if (l.indexOf('bestmove') === 0) {
+      engJob = null;
+      var sc = j.kind === 'mate' ? (j.val > 0 ? 10000 - j.val : -10000 - j.val) : (j.val || 0);
+      if (j.fen.split(' ')[1] === 'b') sc = -sc; // оценка для белых
+      j.resolve({ cp: sc, mate: j.kind === 'mate' ? j.val : null, best: l.split(' ')[1], pv: j.pv || [] });
+      engNext();
+    }
+  }
+  function engNext() {
+    if (engJob || !engQ.length) return;
+    engJob = engQ.shift();
+    eng.postMessage('position fen ' + engJob.fen); eng.postMessage('go movetime ' + engJob.ms);
+  }
+  // Оценка позиции: {cp — для белых, best — лучший ход uci, pv}
+  function engEval(fen, ms) {
+    return engStart().then(function () {
+      return new Promise(function (resolve) { engQ.push({ fen: fen, ms: ms || 300, resolve: resolve }); engNext(); });
+    });
+  }
+  function winPct(cp) { cp = Math.max(-1000, Math.min(1000, cp)); return 50 + 50 * (2 / (1 + Math.exp(-0.00368208 * cp)) - 1); }
+  function uciSan(fen, uci) {
+    if (!uci || uci === '(none)') return '';
+    var c = new Chess(fen), m = c.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci[4] || 'q' });
+    return m ? m.san : uci;
+  }
+  function cpText(cp) {
+    if (Math.abs(cp) > 9000) return (cp > 0 ? '+' : '−') + 'M' + (10000 - Math.abs(cp));
+    return (cp >= 0 ? '+' : '−') + (Math.abs(cp) / 100).toFixed(1);
+  }
+
+  // ---------- Партии с chess.com ----------
+  var GM_KEY = 'debut-trainer-games', PZ_KEY = 'debut-trainer-puzzles';
+  var gm = (function () { try { return JSON.parse(localStorage.getItem(GM_KEY) || 'null') || { nick: '', games: [], an: {} }; } catch (e) { return { nick: '', games: [], an: {} }; } })();
+  var pz = (function () { try { return JSON.parse(localStorage.getItem(PZ_KEY) || 'null') || { list: [] }; } catch (e) { return { list: [] }; } })();
+  var gmBusy = false, gmMsg = '';
+  function gmSave() {
+    var keep = {}; gm.games.forEach(function (g) { if (gm.an[g.id]) keep[g.id] = gm.an[g.id]; }); gm.an = keep;
+    try { localStorage.setItem(GM_KEY, JSON.stringify(gm, function (k, v) { return k.charAt(0) === '_' ? undefined : v; })); } catch (e) { toast('Не удалось сохранить партии в браузере.'); }
+  }
+  function pzSave() { try { localStorage.setItem(PZ_KEY, JSON.stringify(pz)); } catch (e) { toast('Не удалось сохранить задачи.'); } }
+  function gmNick() { return gm.nick || (cc && cc.nick) || ''; }
+  function gmFetch(nick) {
+    nick = String(nick || '').trim().toLowerCase();
+    if (!/^[a-z0-9_-]{2,40}$/.test(nick)) { toast('Введите ник chess.com.'); return; }
+    if (gmBusy) return;
+    gmBusy = true; gmMsg = 'Загружаю партии…'; renderHome();
+    fetch('https://api.chess.com/pub/player/' + encodeURIComponent(nick) + '/games/archives')
+      .then(function (r) { if (r.status === 404) throw new Error('nouser'); if (!r.ok) throw new Error('http'); return r.json(); })
+      .then(function (a) {
+        var urls = (a.archives || []).slice(-2);
+        if (!urls.length) throw new Error('nogames');
+        return Promise.all(urls.map(function (u) { return fetch(u).then(function (r) { return r.ok ? r.json() : { games: [] }; }); }));
+      })
+      .then(function (months) {
+        var list = [];
+        months.forEach(function (d) {
+          (d.games || []).forEach(function (g) {
+            if (g.rules !== 'chess' || !g.pgn || ['rapid', 'blitz', 'bullet', 'daily'].indexOf(g.time_class) < 0) return;
+            var w = g.white.username.toLowerCase() === nick, b = g.black.username.toLowerCase() === nick;
+            if (!w && !b) return;
+            var me = w ? g.white : g.black, op = w ? g.black : g.white;
+            var res = me.result === 'win' ? 'win' : /agreed|repetition|stalemate|insufficient|50move|timevsinsufficient/.test(me.result) ? 'draw' : 'loss';
+            list.push({ id: String(g.uuid || g.url), url: g.url, end: g.end_time, tc: g.time_class, side: w ? 'w' : 'b',
+              opp: op.username, oppR: op.rating, myR: me.rating, res: res, how: res === 'win' ? op.result : me.result, pgn: g.pgn });
+          });
+        });
+        if (!list.length) throw new Error('nogames');
+        list.sort(function (x, y) { return y.end - x.end; });
+        gm.nick = nick; gm.games = list.slice(0, 40); gm.updated = Date.now(); gmSave();
+        toast('Загружено партий: ' + gm.games.length);
+      })
+      .catch(function (e) { toast(CC_ERR[e && e.message] || 'Не удалось загрузить партии: нет интернета или chess.com не отвечает.'); })
+      .then(function () { gmBusy = false; gmMsg = ''; renderHome(); });
+  }
+  function gameById(id) { return gm.games.filter(function (g) { return g.id === id; })[0] || null; }
+  function gameMoves(g) {
+    if (g._mv) return g._mv;
+    var c = new Chess(), fens = [c.fen()], moves = [];
+    ccSans(g.pgn).some(function (s) { var m = c.move(s, { sloppy: true }); if (!m) return true; moves.push({ san: m.san, uci: m.from + m.to + (m.promotion || '') }); fens.push(c.fen()); return false; });
+    g._mv = { fens: fens, moves: moves };
+    return g._mv;
+  }
+  var RES_TXT = { win: 'Победа', loss: 'Поражение', draw: 'Ничья' };
+  var TC_TXT = { rapid: 'рапид', blitz: 'блиц', bullet: 'пуля', daily: 'по переписке' };
+  function gameDate(g) { var d = new Date(g.end * 1000); return d.getDate() + '.' + ('0' + (d.getMonth() + 1)).slice(-2); }
+
+  // Разбор: оценка каждой позиции партии, затем пометки ходов
+  var anRun = null; // {id, i, total}
+  function classify(g) {
+    var a = gm.an[g.id]; if (!a || !a.ev) return null;
+    var mv = gameMoves(g), out = [];
+    for (var i = 0; i < mv.moves.length; i++) {
+      var e0 = a.ev[i], e1 = a.ev[i + 1]; if (!e0 || !e1) { out.push(null); continue; }
+      var white = i % 2 === 0, sg = white ? 1 : -1;
+      var loss = mv.moves[i].uci === e0.best ? 0 : Math.max(0, winPct(sg * e0.cp) - winPct(sg * e1.cp));
+      out.push({ loss: loss, mark: loss >= 30 ? 'blunder' : loss >= 20 ? 'mistake' : loss >= 10 ? 'inacc' : '', mine: (white ? 'w' : 'b') === g.side });
+    }
+    return out;
+  }
+  function analyzeGame(id, ms) {
+    var g = gameById(id); if (!g) return Promise.resolve();
+    var mv = gameMoves(g), a = gm.an[id] || (gm.an[id] = { ev: [] });
+    if (a.done) return Promise.resolve();
+    anRun = { id: id, i: 0, total: mv.fens.length };
+    var i = 0;
+    function step() {
+      while (i < mv.fens.length && a.ev[i]) i++;
+      if (i >= mv.fens.length) { a.done = true; anRun = null; makePuzzles(g); gmSave(); renderHome(); return Promise.resolve(); }
+      anRun.i = i;
+      var fen = mv.fens[i], c = new Chess(fen);
+      if (c.game_over()) {
+        a.ev[i] = { cp: c.in_checkmate() ? (c.turn() === 'w' ? -10000 : 10000) : 0, best: '' };
+        i++; return step();
+      }
+      return engEval(fen, ms).then(function (r) {
+        a.ev[i] = { cp: r.cp, best: r.best }; i++;
+        if (homeGroup === 'game:' + id || homeGroup === 'puzzles' || homeGroup === 'games') renderHome();
+        return step();
+      });
+    }
+    renderHome();
+    return step();
+  }
+  // Задачи: позиции, где вы ошиблись (или не наказали ошибку соперника)
+  function makePuzzles(g) {
+    var cls = classify(g), a = gm.an[g.id], mv = gameMoves(g), have = {};
+    pz.list.forEach(function (p) { have[p.id] = 1; });
+    cls.forEach(function (c, i) {
+      if (!c || !c.mine || c.loss < 20) return;
+      var e0 = a.ev[i], sg = g.side === 'w' ? 1 : -1;
+      if (!e0 || !e0.best || winPct(sg * e0.cp) < 30) return; // позиция уже проиграна — не задача
+      var id = g.id + ':' + i; if (have[id]) return;
+      var prev = cls[i - 1], missed = prev && !prev.mine && prev.loss >= 20;
+      pz.list.push({ id: id, fen: mv.fens[i], best: e0.best, bestSan: uciSan(mv.fens[i], e0.best), played: mv.moves[i].san,
+        side: g.side, kind: missed ? 'missed' : 'blunder', loss: Math.round(c.loss), opp: g.opp, url: g.url, date: gameDate(g),
+        move: Math.floor(i / 2) + 1, streak: 0, due: 0, tries: 0 });
+    });
+    pzSave();
+  }
+  var batchRun = false;
+  function analyzeBatch(n) {
+    if (batchRun) return;
+    var todo = gm.games.filter(function (g) { return !(gm.an[g.id] && gm.an[g.id].done); }).slice(0, n);
+    if (!todo.length) { toast('Все загруженные партии уже разобраны.'); return; }
+    batchRun = true; var k = 0;
+    (function next() {
+      if (k >= todo.length) { batchRun = false; toast('Готово. Задач: ' + pz.list.length); renderHome(); return; }
+      gmMsg = 'Разбираю партию ' + (k + 1) + ' из ' + todo.length + '…';
+      analyzeGame(todo[k++].id, 200).then(next);
+    })();
+  }
+
+  // ---------- Большая доска для разбора и задач ----------
+  function bigBoard(fen, orient, marks, clickable) {
+    var c = new Chess(fen), h = '<div class="an-board' + (clickable ? ' clickable' : '') + '">';
+    for (var i = 0; i < 8; i++) for (var j = 0; j < 8; j++) {
+      var r = orient === 'w' ? i : 7 - i, f = orient === 'w' ? j : 7 - j, sq = 'abcdefgh'[f] + (8 - r), p = c.get(sq);
+      h += '<div class="sq ' + ((r + f) % 2 ? 'd' : 'l') + (marks[sq] ? ' ' + marks[sq] : '') + '" data-sq="' + sq + '">' +
+        (j === 0 ? '<span class="coord r">' + sq[1] + '</span>' : '') + (i === 7 ? '<span class="coord f">' + sq[0] + '</span>' : '') +
+        (p ? '<span class="pc ' + pcls(p.color, p.type) + '"></span>' : '') + '</div>';
+    }
+    return h + '</div>';
+  }
+  function evalGraph(g, cur) {
+    var a = gm.an[g.id], n = gameMoves(g).fens.length; if (!a || n < 2) return '';
+    var pts = [], W = 300, H = 60;
+    for (var i = 0; i < n; i++) { var e = a.ev[i]; if (!e) break; pts.push((i / (n - 1) * W).toFixed(1) + ',' + (H - winPct(e.cp) / 100 * H).toFixed(1)); }
+    if (!pts.length) return '';
+    var x = (cur / (n - 1) * W).toFixed(1);
+    return '<svg class="an-graph" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none"><rect width="' + W + '" height="' + H + '" class="g-bg"/>' +
+      '<polygon class="g-w" points="0,' + H + ' ' + pts.join(' ') + ' ' + pts[pts.length - 1].split(',')[0] + ',' + H + '"/>' +
+      '<line x1="0" x2="' + W + '" y1="' + H / 2 + '" y2="' + H / 2 + '" class="g-mid"/><line x1="' + x + '" x2="' + x + '" y1="0" y2="' + H + '" class="g-cur"/></svg>';
+  }
+
+  // ---------- Страницы: список партий, разбор, задачи ----------
+  var anPly = 0;
+  function gamesPageHtml() {
+    var h = '<div class="home-wrap"><button class="home-back" data-home="1">← Все дебюты</button>' +
+      '<h1 class="home-h1">🔍 Разбор моих партий</h1><p class="home-lead">Stockfish проверит каждый ход и покажет, где вы ошиблись. Бесплатно, прямо в браузере.</p>' +
+      '<div class="cc-row an-nick"><input id="gmNick" placeholder="ник на chess.com" value="' + esc(gmNick()) + '"><button class="primary" data-gm="load"' + (gmBusy ? ' disabled' : '') + '>' + (gm.games.length ? 'Обновить' : 'Загрузить партии') + '</button></div>';
+    if (gmMsg) h += '<p class="an-msg">' + esc(gmMsg) + '</p>';
+    if (!gm.games.length) return h + '<p class="home-lead">Введите ник и нажмите «Загрузить партии». Тренажёр возьмёт 40 последних партий.</p></div>';
+    h += '<ol class="gp-list">';
+    gm.games.forEach(function (g) {
+      var a = gm.an[g.id], cls = a && a.done ? classify(g) : null, info = '';
+      if (cls) {
+        var bl = cls.filter(function (c) { return c && c.mine && c.mark === 'blunder'; }).length;
+        var mi = cls.filter(function (c) { return c && c.mine && c.mark === 'mistake'; }).length;
+        info = bl || mi ? '<span class="an-bad">' + (bl ? plur(bl, 'зевок', 'зевка', 'зевков') : '') + (bl && mi ? ', ' : '') + (mi ? plur(mi, 'ошибка', 'ошибки', 'ошибок') : '') + '</span>' : '<span class="an-good">без грубых ошибок</span>';
+      } else if (anRun && anRun.id === g.id) info = 'разбираю… ' + Math.round(anRun.i / anRun.total * 100) + '%';
+      h += '<li class="gp-item an-' + g.res + '"><span class="gp-num">' + (g.side === 'w' ? '⚪' : '⚫') + '</span>' +
+        '<span class="gp-body"><span class="gp-title">' + RES_TXT[g.res] + ' · против ' + esc(g.opp) + ' (' + g.oppR + ')</span>' +
+        '<span class="gp-moves">' + gameDate(g) + ' · ' + (TC_TXT[g.tc] || g.tc) + ' · ' + plur(Math.ceil(gameMoves(g).moves.length / 2), 'ход', 'хода', 'ходов') + (info ? ' · ' : '') + info + '</span></span>' +
+        '<span class="gp-btns"><button class="primary" data-game="' + esc(g.id) + '">' + (cls ? 'Смотреть' : 'Разобрать') + '</button></span></li>';
+    });
+    return h + '</ol></div>';
+  }
+  function gamePageHtml(g) {
+    var mv = gameMoves(g), a = gm.an[g.id] || { ev: [] }, cls = classify(g) || [], n = mv.moves.length;
+    anPly = Math.max(0, Math.min(anPly, n));
+    var fen = mv.fens[anPly], marks = {}, m = anPly > 0 ? mv.moves[anPly - 1] : null, c = anPly > 0 ? cls[anPly - 1] : null;
+    if (m) { marks[m.uci.slice(0, 2)] = 'last'; marks[m.uci.slice(2, 4)] = 'last'; }
+    var prevE = anPly > 0 ? a.ev[anPly - 1] : null, showBest = c && c.mark && prevE && prevE.best;
+    if (showBest) { marks[prevE.best.slice(0, 2)] = 'hint'; marks[prevE.best.slice(2, 4)] = 'hint'; }
+    var MARK = { blunder: '??', mistake: '?', inacc: '?!' }, NAME = { blunder: 'Зевок', mistake: 'Ошибка', inacc: 'Неточность' };
+    var h = '<div class="home-wrap"><button class="home-back" data-group="games">← Мои партии</button>' +
+      '<h1 class="home-h1 an-h1">' + (g.side === 'w' ? '⚪' : '⚫') + ' ' + RES_TXT[g.res] + ' против ' + esc(g.opp) + '</h1>' +
+      '<p class="home-lead">' + gameDate(g) + ' · ' + (TC_TXT[g.tc] || g.tc) + ' · <a href="' + esc(g.url) + '" target="_blank" rel="noopener">открыть на chess.com</a></p>' +
+      '<div class="an-wrap"><div class="an-left">' + bigBoard(fen, g.side, marks, false) +
+      '<div class="an-nav"><button data-ply="0">⏮</button><button data-ply="' + (anPly - 1) + '">← Назад</button><button data-ply="' + (anPly + 1) + '" class="primary">Вперёд →</button><button data-ply="' + n + '">⏭</button></div>' +
+      evalGraph(g, anPly) + '</div><div class="an-right">';
+    if (!a.done) {
+      var pr = anRun && anRun.id === g.id ? Math.round(anRun.i / anRun.total * 100) : 0;
+      h += '<div class="an-box">' + (anRun && anRun.id === g.id ? 'Stockfish проверяет ходы… ' + pr + '%<div class="lp-bar"><i style="width:' + pr + '%"></i></div>' :
+        '<button class="primary" data-analyze="' + esc(g.id) + '">Разобрать партию</button>') + '</div>';
+    } else {
+      var mine = cls.filter(function (x) { return x && x.mine; });
+      var cnt = function (k) { return mine.filter(function (x) { return x.mark === k; }).length; };
+      h += '<div class="an-sum"><span class="s-bl">?? ' + cnt('blunder') + ' ' + plur(cnt('blunder'), 'зевок', 'зевка', 'зевков').replace(/^\d+ /, '') + '</span>' +
+        '<span class="s-mi">? ' + cnt('mistake') + ' ' + plur(cnt('mistake'), 'ошибка', 'ошибки', 'ошибок').replace(/^\d+ /, '') + '</span>' +
+        '<span class="s-in">?! ' + cnt('inacc') + ' ' + plur(cnt('inacc'), 'неточность', 'неточности', 'неточностей').replace(/^\d+ /, '') + '</span></div>';
+      var firstBad = cls.findIndex(function (x) { return x && x.mine && (x.mark === 'blunder' || x.mark === 'mistake'); });
+      if (firstBad >= 0) h += '<button class="an-jump" data-ply="' + (firstBad + 1) + '">Показать первую ошибку: ход ' + (Math.floor(firstBad / 2) + 1) + ' →</button>';
+    }
+    // Комментарий к текущему ходу
+    var e = a.ev[anPly];
+    if (m) {
+      var who = c && c.mine ? 'Ваш ход' : 'Ход соперника';
+      var sgm = (anPly - 1) % 2 ? -1 : 1, name = c && c.mark ? NAME[c.mark] : '';
+      if (c && (c.mark === 'blunder' || c.mark === 'mistake') && e && winPct(sgm * e.cp) >= 40) name = 'Упущен выигрыш';
+      h += '<div class="an-comment' + (c && c.mark ? ' ' + c.mark : '') + '"><b>' + (Math.floor((anPly - 1) / 2) + 1) + ((anPly - 1) % 2 ? '... ' : '. ') + esc(m.san) + (c && c.mark ? MARK[c.mark] : '') + '</b> — ' + who +
+        (c && c.mark ? '. <b>' + name + '.</b>' + (showBest ? ' Лучше было <b>' + esc(uciSan(mv.fens[anPly - 1], prevE.best)) + '</b> (синие клетки).' : '') : c ? '. Нормальный ход.' : '.') +
+        (e ? '<br><span class="an-ev">Оценка: ' + (prevE ? cpText(prevE.cp) + ' → ' : '') + cpText(e.cp) + ' (плюс — лучше белым)</span>' : '') + '</div>';
+    } else h += '<div class="an-comment">Начальная позиция. Нажмите «Вперёд» или стрелку →.</div>';
+    // Список ходов
+    h += '<div class="an-moves">';
+    for (var i = 0; i < n; i++) {
+      if (i % 2 === 0) h += '<span class="an-no">' + (i / 2 + 1) + '.</span>';
+      var ci = cls[i];
+      h += '<button class="an-mv' + (ci && ci.mark ? ' ' + ci.mark : '') + (ci && ci.mine ? ' mine' : '') + (i + 1 === anPly ? ' on' : '') + '" data-ply="' + (i + 1) + '">' + esc(mv.moves[i].san) + (ci && ci.mark ? MARK[ci.mark] : '') + '</button>';
+    }
+    return h + '</div></div></div></div>';
+  }
+
+  // Задачи
+  var pzCur = null, pzSel = null, pzState = 'idle', pzMsg = '', pzMarks = {}, pzAfter = null, pzAfterUci = '';
+  function pzDue() { var now = Date.now(); return pz.list.filter(function (p) { return p.due <= now; }); }
+  function pzPick() {
+    var due = pzDue(); if (!due.length) return null;
+    due.sort(function (a, b) { return a.streak - b.streak || a.due - b.due; });
+    return due[0];
+  }
+  function puzzlesPageHtml() {
+    var due = pzDue().length, solved = pz.list.filter(function (p) { return p.streak > 0; }).length;
+    var analyzed = gm.games.filter(function (g) { return gm.an[g.id] && gm.an[g.id].done; }).length;
+    var h = '<div class="home-wrap"><button class="home-back" data-home="1">← Все дебюты</button>' +
+      '<h1 class="home-h1">🧩 Мои задачи</h1><p class="home-lead">Задачи из ваших партий: позиции, где вы ошиблись. Найдите ход, который вы тогда не нашли.</p>' +
+      '<div class="pz-stats"><div><b>' + pz.list.length + '</b><span>всего задач</span></div><div><b>' + due + '</b><span>ждут сейчас</span></div><div><b>' + solved + '</b><span>решено</span></div></div>';
+    if (due) h += '<button class="primary gp-go" data-pz="start">Решать задачи →</button>';
+    else if (pz.list.length) h += '<p class="an-good">Все задачи на сегодня решены. Новые появятся после разбора новых партий.</p>';
+    h += '<h2 class="home-h2">Найти новые задачи</h2>';
+    if (!gm.games.length) h += '<p class="home-lead">Сначала загрузите партии в разделе «Разбор моих партий».</p><button data-group="games">🔍 Разбор моих партий</button>';
+    else {
+      h += '<p class="home-lead">Разобрано партий: ' + analyzed + ' из ' + gm.games.length + '.' + (gmMsg && batchRun ? ' ' + esc(gmMsg) : '') + '</p>';
+      h += '<button class="primary" data-pz="batch"' + (batchRun ? ' disabled' : '') + '>' + (batchRun ? 'Stockfish работает…' : 'Разобрать 10 партий и найти ошибки') + '</button>';
+      if (batchRun && anRun) h += '<div class="lp-bar an-bar"><i style="width:' + Math.round(anRun.i / anRun.total * 100) + '%"></i></div>';
+    }
+    return h + '</div>';
+  }
+  function puzzleHtml() {
+    var p = pzCur; if (!p) return puzzlesPageHtml();
+    var side = p.side === 'w' ? 'белыми' : 'чёрными', marks = {};
+    Object.keys(pzMarks).forEach(function (k) { marks[k] = pzMarks[k]; });
+    if (pzSel) marks[pzSel] = 'sel';
+    var h = '<div class="home-wrap"><button class="home-back" data-group="puzzles">← Мои задачи</button>' +
+      '<div class="an-wrap"><div class="an-left">' + bigBoard(pzAfter && (pzState === 'ok' || pzState === 'shown') ? pzAfter : p.fen, p.side, marks, pzState === 'ask' || pzState === 'wrong') + '</div><div class="an-right">' +
+      '<h1 class="home-h1 an-h1">Вы играете ' + side + '</h1>' +
+      '<p class="home-lead">Партия против ' + esc(p.opp) + ', ' + p.date + ', ход ' + p.move + '.</p>' +
+      '<div class="an-comment' + (pzState === 'ok' ? ' good' : pzState === 'wrong' ? ' blunder' : '') + '">' +
+      (pzMsg || (p.kind === 'missed' ? 'Соперник только что ошибся. Накажите его! Найдите лучший ход.' : 'Здесь вы ошиблись в партии. Найдите лучший ход.')) + '</div>' +
+      '<div class="an-nav">';
+    if (pzState === 'ask' || pzState === 'wrong') h += '<button data-pz="hint">💡 Подсказка</button><button data-pz="show">Показать ответ</button>';
+    if (pzState === 'ok' || pzState === 'shown') h += '<button class="primary" data-pz="next">Следующая задача →</button>';
+    h += '</div><p class="pz-how">Ходите кликом: сначала фигура, потом клетка.</p></div></div></div>';
+    return h;
+  }
+  function pzStart() {
+    pzCur = pzPick(); pzSel = null; pzMarks = {}; pzMsg = ''; pzState = 'ask'; pzAfter = null;
+    if (!pzCur) { homeGroup = 'puzzles'; toast('Задач на сейчас нет.'); }
+    else homeGroup = 'puzzle';
+    renderHome();
+  }
+  function pzGrade(ok) {
+    var p = pzCur; p.tries++;
+    if (ok) { p.streak = (p.streak || 0) + 1; p.due = Date.now() + [1, 3, 7, 21, 60][Math.min(p.streak - 1, 4)] * 864e5; }
+    else { p.streak = 0; p.due = Date.now() + 10 * 6e4; }
+    pzSave();
+  }
+  function pzMove(from, to) {
+    var p = pzCur, c = new Chess(p.fen), m = c.move({ from: from, to: to, promotion: 'q' });
+    pzSel = null; if (!m) { renderHome(); return; }
+    var uci = m.from + m.to + (m.promotion || ''), firstTry = pzState === 'ask';
+    pzAfter = c.fen(); pzAfterUci = uci;
+    pzMarks = {}; pzMarks[m.from] = 'last'; pzMarks[m.to] = 'last';
+    if (uci === p.best || uci.slice(0, 4) === p.best.slice(0, 4)) { pzDone(true, firstTry, m.san); return; }
+    pzState = 'check'; pzMsg = 'Проверяю ход ' + m.san + '…'; renderHome();
+    Promise.all([engEval(p.fen, 400), engEval(c.fen(), 400)]).then(function (r) {
+      var sg = p.side === 'w' ? 1 : -1, best = winPct(sg * r[0].cp), mine = winPct(sg * r[1].cp);
+      if (best - mine < 5) pzDone(true, firstTry, m.san, true);
+      else {
+        if (firstTry) pzGrade(false);
+        pzState = 'wrong'; pzMarks = {}; pzMarks[m.from] = 'wrong'; pzMarks[m.to] = 'wrong';
+        pzMsg = 'Ход ' + esc(m.san) + ' не лучший. ' + (m.san === p.played ? 'Именно так вы сыграли в партии. ' : '') + 'Попробуйте ещё раз.';
+        renderHome();
+      }
+    });
+  }
+  function pzDone(ok, firstTry, san, alt) {
+    var p = pzCur;
+    if (firstTry) pzGrade(true);
+    pzState = 'ok'; pzMarks = {}; pzMarks[pzAfterUci.slice(0, 2)] = 'last'; pzMarks[pzAfterUci.slice(2, 4)] = 'last';
+    pzMsg = '✓ Верно! ' + (alt ? 'Ход ' + esc(san) + ' тоже хороший. Лучший ход по Stockfish: <b>' + esc(p.bestSan) + '</b>.' : '<b>' + esc(p.bestSan) + '</b> — лучший ход.') +
+      ' В партии вы сыграли ' + esc(p.played) + '.';
+    renderHome();
+  }
+  function boardClick(sq) {
+    var p = pzCur; if (!p || (pzState !== 'ask' && pzState !== 'wrong')) return;
+    var c = new Chess(p.fen), pc = c.get(sq);
+    if (pzSel && pzSel !== sq && c.moves({ square: pzSel, verbose: true }).some(function (m) { return m.to === sq; })) { pzMove(pzSel, sq); return; }
+    pzSel = pc && pc.color === c.turn() ? sq : null;
+    renderHome();
+  }
+  function homeExtraClick(t) {
+    var d;
+    if ((d = t.getAttribute('data-gm')) === 'load') { var inp = $('gmNick'); gmFetch(inp ? inp.value : gmNick()); return true; }
+    if ((d = t.getAttribute('data-game'))) { anPly = 0; showHome('game:' + d); var a = gm.an[d]; if (!a || !a.done) analyzeGame(d, 350); return true; }
+    if ((d = t.getAttribute('data-analyze'))) { analyzeGame(d, 350); return true; }
+    if ((d = t.getAttribute('data-ply')) != null) { anPly = +d; renderHome(); return true; }
+    if ((d = t.getAttribute('data-pz'))) {
+      if (d === 'start' || d === 'next') pzStart();
+      else if (d === 'batch') { analyzeBatch(10); renderHome(); }
+      else if (d === 'hint' && pzCur) { pzMarks = {}; pzMarks[pzCur.best.slice(0, 2)] = 'hint'; pzMsg = 'Подсказка: ходит фигура на синей клетке.'; if (pzState === 'ask') { pzGrade(false); pzState = 'wrong'; } renderHome(); }
+      else if (d === 'show' && pzCur) { if (pzState === 'ask') pzGrade(false); pzState = 'shown'; pzAfter = (function () { var c2 = new Chess(pzCur.fen); c2.move({ from: pzCur.best.slice(0, 2), to: pzCur.best.slice(2, 4), promotion: pzCur.best[4] || 'q' }); return c2.fen(); })(); pzMarks = {}; pzMarks[pzCur.best.slice(0, 2)] = 'hint'; pzMarks[pzCur.best.slice(2, 4)] = 'hint'; pzMsg = 'Ответ: <b>' + esc(pzCur.bestSan) + '</b>. В партии вы сыграли ' + esc(pzCur.played) + '. Задача вернётся позже.'; renderHome(); }
+      return true;
+    }
+    var sqEl = t.closest('.an-board.clickable .sq'); if (sqEl) { boardClick(sqEl.getAttribute('data-sq')); return true; }
+    return false;
+  }
+  function homeKey(e) {
+    if (!/^game:/.test(homeGroup || '')) return;
+    var tag = (e.target.tagName || '').toLowerCase(); if (tag === 'input') return;
+    if (e.key === 'ArrowLeft') { anPly = Math.max(0, anPly - 1); renderHome(); e.preventDefault(); }
+    if (e.key === 'ArrowRight') { anPly++; renderHome(); e.preventDefault(); }
+  }
 
   // ---------- Кнопки и клавиши ----------
   $('modeTabs').addEventListener('click', function (e) { var m = e.target.dataset && e.target.dataset.mode; if (m && S) startChapter(S.chapter, m); });
@@ -2437,6 +2885,7 @@ if (typeof module !== 'undefined') module.exports = Core;
   }
   document.addEventListener('keydown', function (e) {
     if (document.querySelector('dialog[open]')) return;
+    if (document.body.classList.contains('at-home')) { homeKey(e); return; }
     var tag = (e.target.tagName || '').toLowerCase();
     if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
