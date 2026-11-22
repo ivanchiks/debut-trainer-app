@@ -234,7 +234,8 @@ dialog label { display: block; margin-top: 10px; font-size: 13.5px; }
 @media (min-width: 901px) { .board-wrap { --sz: min(calc(100vw - 480px), calc(100vh - 100px), 640px); } }
 .home { display: none; }
 body.at-home .home { display: block; }
-body.at-home .layout, body.at-home #btnMix, body.at-home #btnImport { display: none; }
+body.at-home .main, body.at-home #btnMix, body.at-home #btnImport { display: none; }
+body.at-home .layout { min-height: 0; }
 .home-wrap { max-width: 1180px; margin: 0 auto; padding: 24px 16px 48px; }
 .home-h1 { margin: 0 0 6px; font-size: 28px; line-height: 1.2; }
 .home-lead { margin: 0 0 18px; color: var(--muted); }
@@ -296,6 +297,7 @@ body.at-home .layout, body.at-home #btnMix, body.at-home #btnImport { display: n
 .ch-back { display: block; margin-bottom: 8px; padding: 5px 10px; font-size: 13.5px; font-weight: 600; }
 .ch-lesson { display: block; font-size: 12.5px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
 .ch-name { display: block; }
+body.drawer-open .lib-tabs { display: none; }
 
 </style>
 </head>
@@ -2311,7 +2313,7 @@ if (typeof module !== 'undefined') module.exports = Core;
   function renderHome() {
     var el = $('home'); if (!el) return;
     var g = homeGroup && groupByKey(homeGroup);
-    el.innerHTML = g ? groupPageHtml(g) : homeListHtml();
+    el.innerHTML = homeGroup === 'traps' ? trapsPageHtml() : g ? groupPageHtml(g) : homeListHtml();
   }
   function homeListHtml() {
     var h = '<div class="home-wrap"><h1 class="home-h1">Выберите дебют</h1>' +
@@ -2341,7 +2343,7 @@ if (typeof module !== 'undefined') module.exports = Core;
       h += '</div>';
     });
     h += '<h2 class="home-h2">Ещё</h2><div class="extra-grid">' +
-      '<button class="extra" data-drawer="traps"><span class="ex-ico">🪤</span><span><b>Все ловушки</b><br><small>Ошибки соперников и как их наказать</small></span></button>' +
+      '<button class="extra" data-group="traps"><span class="ex-ico">🪤</span><span><b>Все ловушки</b><br><small>Ошибки соперников и как их наказать</small></span></button>' +
       '<button class="extra" data-drawer="chesscom"><span class="ex-ico">📊</span><span><b>Мои партии на chess.com</b><br><small>Как вы играете и что потренировать</small></span></button>' +
       '</div></div>';
     return h;
@@ -2371,13 +2373,32 @@ if (typeof module !== 'undefined') module.exports = Core;
     });
     return h + '</ol></div>';
   }
+  function trapsPageHtml() {
+    var h = '<div class="home-wrap"><button class="home-back" data-home="1">← Все дебюты</button>' +
+      '<h1 class="home-h1">🪤 Все ловушки</h1><p class="home-lead">Частые ошибки соперников и как их наказать. Нажмите «Урок».</p>';
+    courses.forEach(function (course) {
+      var chs = course.chapters.filter(isTrap); if (!chs.length) return;
+      h += '<h2 class="home-h2">' + esc(courseTitle(course)) + '</h2><ol class="gp-list">';
+      chs.forEach(function (ch) {
+        var pn = parseName(ch.name), s = chStatus(ch), g = ch.group;
+        h += '<li class="gp-item st-' + s.key + '"><span class="gp-num">' + (s.key === 'done' ? '✓' : '🪤') + '</span>' +
+          '<span class="gp-body"><span class="gp-title">' + esc(ch.headers.Trap) + '</span>' +
+          '<span class="gp-moves">' + esc((g ? g.name : pn.title) + ' · ' + movesText(mainLine(ch).slice(0, 8))) + '</span></span>' +
+          '<span class="gp-st">' + s.text + '</span>' +
+          '<span class="gp-btns"><button class="primary" data-start="' + ch.id + '">Урок</button>' +
+          '<button data-drill="' + ch.id + '">Закрепление</button></span></li>';
+      });
+      h += '</ol>';
+    });
+    return h + '</div>';
+  }
   $('home').addEventListener('click', function (e) {
     var t = e.target.closest('[data-start],[data-drill],[data-group],[data-home],[data-drawer]'); if (!t) return;
     var d;
     if ((d = t.getAttribute('data-start'))) { hideHome(); startChapter(chapterById(d), 'lesson'); return; }
     if ((d = t.getAttribute('data-drill'))) { hideHome(); startChapter(chapterById(d), 'drill'); return; }
     if (t.hasAttribute('data-home')) { showHome(null); return; }
-    if ((d = t.getAttribute('data-drawer'))) { e.stopPropagation(); store.libTab = d; save(); renderLibrary(); $('library').classList.add('open'); return; }
+    if ((d = t.getAttribute('data-drawer'))) { e.stopPropagation(); store.libTab = d; save(); renderLibrary(); document.body.classList.add('drawer-open'); document.querySelector('.lib-head span').textContent = '📊 Мои партии на chess.com'; $('library').classList.add('open'); return; }
     if ((d = t.getAttribute('data-group'))) { showHome(d); }
   });
   $('chTitle').addEventListener('click', function (e) {
@@ -2400,7 +2421,7 @@ if (typeof module !== 'undefined') module.exports = Core;
   $('btnReview').addEventListener('click', startReview);
   $('btnMix').addEventListener('click', startMix);
 
-  function closeDrawer() { $('library').classList.remove('open'); }
+  function closeDrawer() { $('library').classList.remove('open'); document.body.classList.remove('drawer-open'); }
   $('btnCloseLib').addEventListener('click', closeDrawer);
   $('btnMenu').addEventListener('click', function (e) { e.stopPropagation(); showHome(S && S.chapter && S.chapter.group ? S.chapter.group.key : null); });
   document.addEventListener('click', function (e) {
